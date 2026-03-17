@@ -34,7 +34,7 @@ def render_to_pdf(template_src, context_dict={}):
     
     # Generate PDF
     pdf = pisa.pisaDocument(
-        BytesIO(html.encode("ISO-8859-1")), 
+        BytesIO(html.encode("utf-8")), 
         result,
         link_callback=link_callback
     )
