@@ -5,6 +5,7 @@ Run: python manage.py shell < seed_data.py
 import django
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hrms_project.settings')
+django.setup()
 
 from django.contrib.auth.models import User
 from employees.models import Employee, Department
@@ -76,9 +77,66 @@ holidays_2026 = [
     ('Dussehra', date(2026, 10, 9), 'regional'),
 ]
 for name, hdate, htype in holidays_2026:
-    Holiday.objects.get_or_create(name=name, date=hdate, defaults={'holiday_type': htype})
+    Holiday.objects.get_or_create(date=hdate, defaults={'name': name, 'holiday_type': htype})
 print(f"Created {len(holidays_2026)} holidays for 2026")
 
-print("\n✅ Seed data complete!")
+# Generate attendance for previous month (February 2026)
+from datetime import timedelta, time
+import random
+from attendance.models import Attendance
+from leaves.models import LeaveRequest
+
+print("Generating attendance and leave data for February 2026...")
+start_date = date(2026, 2, 1)
+end_date = date(2026, 2, 28)
+
+employees = Employee.objects.all()
+leave_type = LeaveType.objects.filter(is_paid=True).first()
+
+attendance_list = []
+for emp in employees:
+    current_date = start_date
+    while current_date <= end_date:
+        # Skip weekends (Saturday=5, Sunday=6)
+        if current_date.weekday() < 5:
+            status = 'present'
+            rand_val = random.random()
+            
+            # 5% chance of absent, 5% chance of leave
+            if rand_val < 0.05:
+                status = 'absent'
+            elif rand_val < 0.10 and leave_type:
+                status = 'leave'
+                
+            check_in_time = time(9, random.randint(0, 30)) if status == 'present' else None
+            check_out_time = time(17, random.randint(0, 30)) if status == 'present' else None
+            
+            if status == 'leave':
+                LeaveRequest.objects.get_or_create(
+                    employee=emp,
+                    start_date=current_date,
+                    end_date=current_date,
+                    leave_type=leave_type,
+                    defaults={'status': 'approved', 'reason': 'Auto-generated leave for testing'}
+                )
+                
+            attendance_list.append(Attendance(
+                employee=emp,
+                date=current_date,
+                status=status,
+                check_in=check_in_time,
+                check_out=check_out_time,
+                notes='Auto-seeded'
+            ))
+            
+        current_date += timedelta(days=1)
+
+# Delete existing attendance for Feb 2026 to avoid duplicate errors on re-run
+Attendance.objects.filter(date__range=(start_date, end_date)).delete()
+LeaveRequest.objects.filter(start_date__range=(start_date, end_date)).delete()
+Attendance.objects.bulk_create(attendance_list, ignore_conflicts=True)
+print(f"Created {len(attendance_list)} attendance records for {len(employees)} employees.")
+
+print("\n[SUCCESS] Seed data complete!")
 print("Login URL: http://127.0.0.1:8000/login/")
 print("Username: admin | Password: admin123")
