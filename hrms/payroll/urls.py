@@ -5,11 +5,12 @@ from django.urls import path
 from .views import (
     PayrollListView, PayrollDetailView, PayrollCreateView,
     PayrollUpdateView, PayrollDeleteView,
-    PayrollMarkPaidView, PayslipView,
+    PayrollMarkPaidView, PayslipView, CalculatePayrollAPIView
 )
 
 urlpatterns = [
     path('', PayrollListView.as_view(), name='payroll_list'),
+    path('api/calculate/', CalculatePayrollAPIView.as_view(), name='api_payroll_calculate'),
     path('<int:pk>/', PayrollDetailView.as_view(), name='payroll_detail'),
     path('create/', PayrollCreateView.as_view(), name='payroll_create'),
     path('<int:pk>/edit/', PayrollUpdateView.as_view(), name='payroll_edit'),
