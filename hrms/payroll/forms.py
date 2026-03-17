@@ -4,6 +4,16 @@ from employees.models import Employee
 
 
 class PayrollForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        import datetime
+        current_year = datetime.date.today().year
+        year_choices = [(y, y) for y in range(current_year, 2019, -1)]
+        self.fields['year'] = forms.TypedChoiceField(
+            choices=year_choices, coerce=int, 
+            widget=forms.Select(attrs={'class': 'form-control form-select'})
+        )
+
     class Meta:
         model = Payroll
         fields = [
@@ -15,7 +25,6 @@ class PayrollForm(forms.ModelForm):
         widgets = {
             'employee': forms.Select(attrs={'class': 'form-control form-select'}),
             'month': forms.Select(attrs={'class': 'form-control form-select'}),
-            'year': forms.NumberInput(attrs={'class': 'form-control'}),
             'basic_salary': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'hra': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'travel_allowance': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
