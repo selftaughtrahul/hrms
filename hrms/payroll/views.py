@@ -4,10 +4,11 @@ Class-Based Views for Payroll management.
 Business logic delegated entirely to PayrollService.
 """
 from datetime import date
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View, View
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
 
 from core.mixins import HRMSLoginMixin, HRMSCreateMixin, HRMSUpdateMixin, HRMSDeleteMixin
 from core.exceptions import PayrollAlreadyExistsError, InvalidPayrollStateError
@@ -168,3 +169,34 @@ class PayslipView(HRMSLoginMixin, DetailView):
             return HttpResponse("Error Rendering PDF", status=400)
             
         return super().get(request, *args, **kwargs)
+
+
+class CalculatePayrollAPIView(HRMSLoginMixin, View):
+    """
+    AJAX endpoint returning pre-calculated salary breakdowns for an Employee.
+    Takes employee_id, month, and year as GET parameters.
+    """
+    def get(self, request, *args, **kwargs):
+        employee_id = request.GET.get('employee_id')
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+        
+        try:
+            employee = Employee.objects.get(pk=employee_id)
+        except (ValueError, TypeError, Employee.DoesNotExist):
+            return JsonResponse({'error': 'Invalid or missing employee ID'}, status=400)
+            
+        try:
+            # Cast month and year if available
+            m_val = int(month) if month else None
+            y_val = int(year)  if year  else None
+            
+            data = PayrollService.prefill_from_employee(employee, month=m_val, year=y_val)
+            # Remove complex objects before returning JSON
+            data.pop('employee', None)
+            return JsonResponse(data)
+        except ValueError as e:
+            # This triggers if a future date is provided
+            return JsonResponse({'error': str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
