@@ -51,3 +51,79 @@
     </form>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const empSelect = document.getElementById('id_employee');
+    const monthSelect = document.getElementById('id_month');
+    const yearInput = document.getElementById('id_year');
+    
+    // Auto-calculate fields
+    const basicInput = document.getElementById('id_basic_salary');
+    const hraInput = document.getElementById('id_hra');
+    const pfInput = document.getElementById('id_pf_deduction');
+    const leaveInput = document.getElementById('id_leave_deductions');
+    const notesInput = document.getElementById('id_notes');
+
+    function fetchPayrollData() {
+        const empId = empSelect.value;
+        const month = monthSelect.value;
+        const year = yearInput.value;
+
+        if (!empId) return; // Don't fetch if no employee selected
+
+        const url = `{% url 'api_payroll_calculate' %}?employee_id=${empId}&month=${month}&year=${year}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // Reset fields to 0 if there's an error (like a future date)
+                    basicInput.value = 0;
+                    hraInput.value = 0;
+                    pfInput.value = 0;
+                    leaveInput.value = 0;
+                    notesInput.value = data.error;
+                } else {
+                    // Update form fields with calculated data
+                    if (data.basic_salary !== undefined) basicInput.value = data.basic_salary;
+                    if (data.hra !== undefined) hraInput.value = data.hra;
+                    if (data.pf_deduction !== undefined) pfInput.value = data.pf_deduction;
+                    if (data.leave_deductions !== undefined) leaveInput.value = data.leave_deductions;
+                    
+                    // Only overwrite notes if we generated an auto-deduction message
+                    if (data.notes) {
+                        const currentNotes = notesInput.value;
+                        if (!currentNotes.includes(data.notes)) {
+                             notesInput.value = data.notes + (currentNotes ? "\n" + currentNotes : "");
+                        }
+                    } else {
+                        notesInput.value = ""; // Clear if no notes from backend
+                    }
+                }
+
+                // Trigger the live preview calculation in hrms.js
+                if (window.jQuery) {
+                    jQuery(basicInput).trigger('input');
+                } else {
+                    const event = new Event('input', { bubbles: true });
+                    basicInput.dispatchEvent(event);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Attach listeners
+    if (empSelect) empSelect.addEventListener('change', fetchPayrollData);
+    if (monthSelect) monthSelect.addEventListener('change', fetchPayrollData);
+    if (yearInput) yearInput.addEventListener('change', fetchPayrollData);
+
+    // Initial check on load: if employee is pre-filled, fetch data immediately
+    if (empSelect && empSelect.value) {
+        // A slight delay ensures the page and all inputs are fully ready
+        setTimeout(fetchPayrollData, 100);
+    }
+});
+</script>
+{% endblock %}
