@@ -131,7 +131,7 @@ class PayrollService:
         return Payroll.objects.for_period(month, year)
 
     @staticmethod
-    def prefill_from_employee(employee) -> dict:
+    def prefill_from_employee(employee, month: int = None, year: int = None) -> dict:
         """
         Generate default payroll data from an employee's profile.
         Used to pre-populate the payroll creation form.
@@ -140,8 +140,14 @@ class PayrollService:
             dict: Initial form data.
         """
         today = date.today()
-        target_month = today.month - 1 if today.month > 1 else 12
-        target_year = today.year if today.month > 1 else today.year - 1
+        
+        # Use provided month/year, or default to previous month
+        target_month = month if month is not None else (today.month - 1 if today.month > 1 else 12)
+        target_year = year if year is not None else (today.year if today.month > 1 else today.year - 1)
+
+        # Validate that the selected period is not in the future
+        if target_year > today.year or (target_year == today.year and target_month > today.month):
+            raise ValueError("Cannot calculate payroll for future dates.")
 
         try:
             config = CompanyConfig.load()
