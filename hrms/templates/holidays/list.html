@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Holiday Calendar - HRMS{% endblock %}
+{% block breadcrumb %}<span class="current-page"><i class="bi bi-calendar-heart-fill me-1"></i>Holidays</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Holiday Calendar</h1>
+        <p class="page-subtitle">Public, company and optional holidays for the year</p>
+    </div>
+    <a href="{% url 'holiday_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Holiday</a>
+</div>
+
+<div class="stat-bar mb-4">
+    <form method="GET" class="d-flex align-items-center gap-2">
+        <label class="text-muted small">Year:</label>
+        <select name="year" class="form-select filter-select" onchange="this.form.submit()">
+            {% for y in years %}<option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+        </select>
+    </form>
+    <div class="stat-divider ms-3"></div>
+    <div class="stat-item"><span class="stat-val text-danger">{{ national_count }}</span><span class="stat-lbl">National</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-primary">{{ company_count }}</span><span class="stat-lbl">Company</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-success">{{ regional_count }}</span><span class="stat-lbl">Regional</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-warning">{{ optional_count }}</span><span class="stat-lbl">Optional</span></div>
+</div>
+
+<div class="card card-dash">
+    <div class="table-responsive">
+        <table class="table table-hrms mb-0">
+            <thead>
+                <tr><th>Date</th><th>Day</th><th>Holiday Name</th><th>Type</th><th>Description</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            {% for h in holidays %}
+            <tr>
+                <td><strong>{{ h.date|date:"d M Y" }}</strong></td>
+                <td class="text-muted">{{ h.date|date:"l" }}</td>
+                <td>
+                    {{ h.name }}
+                    {% if h.is_restricted %}<span class="badge bg-secondary ms-1">Optional</span>{% endif %}
+                </td>
+                <td><span class="badge badge-{{ h.holiday_type }}">{{ h.get_holiday_type_display }}</span></td>
+                <td class="text-muted">{{ h.description|default:"—" }}</td>
+                <td>
+                    <div class="action-btns">
+                        <a href="{% url 'holiday_edit' h.pk %}" class="btn-action btn-action-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'holiday_delete' h.pk %}" class="btn-action btn-action-del" title="Delete"><i class="bi bi-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center py-5 text-muted"><i class="bi bi-calendar-x display-6 d-block mb-2"></i>No holidays for {{ selected_year }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

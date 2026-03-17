@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HRMS - Human Resource Management System{% endblock %}</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" type="image/png">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/hrms.css">
+    
+    <!-- Dynamic Fonts and CSS Variables -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+
+    <style>
+        :root {
+            /* Overwrite Bootstrap Defaults */
+            --bs-body-font-family: {{ company.global_font_family|default:"'Inter', sans-serif"|safe }};
+            --bs-body-bg: {{ company.global_background_color|default:"#f4f6f9" }};
+            
+            /* Color Overrides */
+            --hrms-primary: {{ company.primary_color|default:"#0d6efd" }};
+            --bs-primary: {{ company.primary_color|default:"#0d6efd" }};
+        }
+        
+        .btn-primary {
+            background-color: var(--hrms-primary);
+            border-color: var(--hrms-primary);
+        }
+        .text-primary, .nav-link.active i, .nav-link.active span {
+            color: var(--hrms-primary) !important;
+        }
+        .badge.bg-primary {
+            background-color: var(--hrms-primary) !important;
+        }
+    </style>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-logo" style="overflow: hidden;">
+            {% if company and company.company_logo %}
+                <img src="{{ company.company_logo.url }}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                <i class="bi bi-buildings-fill"></i>
+            {% endif %}
+        </div>
+        <div class="brand-text">
+            <span class="brand-name">HRMS</span>
+            <span class="brand-sub">{{ company.company_name|default:"Management Suite"|truncatechars:18 }}</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">OVERVIEW</div>
+        <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="nav-section-label">PEOPLE</div>
+        <a href="{% url 'employee_list' %}" class="nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-people-fill"></i>
+            <span>Employees</span>
+        </a>
+        <a href="{% url 'department_list' %}" class="nav-link {% if 'department' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-diagram-3-fill"></i>
+            <span>Departments</span>
+        </a>
+
+        <a href="{% url 'attendance_record' %}" class="nav-link {% if 'attendance_record' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-clock-history"></i>
+            <span>My Attendance</span>
+        </a>
+
+        {% if user.is_staff %}
+        <a href="{% url 'attendance_manage_list' %}" class="nav-link {% if 'manage' in request.resolver_match.url_name and 'attendance' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar3"></i>
+            <span>Manage Attendance</span>
+        </a>
+        {% endif %}
+
+        <div class="nav-section-label">TIME OFF</div>
+        <a href="{% url 'leave_list' %}" class="nav-link {% if 'leave' in request.resolver_match.url_name and 'type' not in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar-check-fill"></i>
+            <span>Leave Requests</span>
+        </a>
+        <a href="{% url 'leave_type_list' %}" class="nav-link {% if 'leave_type' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-card-list"></i>
+            <span>Leave Types</span>
+        </a>
+        <a href="{% url 'holiday_list' %}" class="nav-link {% if 'holiday' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar-heart-fill"></i>
+            <span>Holidays</span>
+        </a>
+
+        <div class="nav-section-label">FINANCE</div>
+        <a href="{% url 'payroll_list' %}" class="nav-link {% if 'payroll' in request.resolver_match.url_name or 'payslip' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-cash-coin"></i>
+            <span>Payroll</span>
+        </a>
+
+        <div class="nav-section-label">SYSTEM</div>
+        {% if user.is_staff %}
+        <a href="{% url 'core_settings_global' %}" class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-sliders"></i>
+            <span>Global Settings</span>
+        </a>
+        <a href="/admin/" class="nav-link" target="_blank">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>Django Admin</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">{{ user.username|first|upper }}</div>
+            <div class="user-details">
+                <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                <span class="user-role">Administrator</span>
+            </div>
+        </div>
+        <a href="{% url 'logout' %}" class="logout-btn" title="Logout">
+            <i class="bi bi-box-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-wrapper" id="mainWrapper">
+    <!-- Top Header -->
+    <div class="top-header">
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="header-breadcrumb">
+            {% block breadcrumb %}
+            <span class="current-page">Dashboard</span>
+            {% endblock %}
+        </div>
+        <div class="header-actions">
+            <!-- Dropdown Notification Bell -->
+            <div class="dropdown">
+                <a href="#" class="header-action-btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Activity Feed">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display:none;font-size:0.6rem;">
+                        0
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                    <li><h6 class="dropdown-header d-flex justify-content-between align-items-center">Recent Activity <i class="bi bi-clock-history"></i></h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <div id="activityFeed">
+                        <!-- Polled from API -->
+                        <li><span class="dropdown-item text-muted small text-center">Loading...</span></li>
+                    </div>
+                </ul>
+            </div>
+            <a href="{% url 'employee_create' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> Add Employee
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-{% if message.tags == 'success' %}check-circle-fill{% elif message.tags == 'error' %}x-circle-fill{% else %}info-circle-fill{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+{% else %}
+    {% block auth_content %}{% endblock %}
+{% endif %}
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Custom JS -->
+<script src="/static/js/hrms.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

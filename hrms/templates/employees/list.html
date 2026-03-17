@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Employees - HRMS{% endblock %}
+{% block breadcrumb %}<span class="current-page"><i class="bi bi-people-fill me-1"></i>Employees</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Employee Management</h1>
+        <p class="page-subtitle">Manage your workforce — Full Time, Part Time & Contract employees</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'employee_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Employee</a>
+    </div>
+</div>
+
+<!-- Summary Badges -->
+<div class="stat-bar mb-4">
+    <div class="stat-item"><span class="stat-val">{{ total }}</span><span class="stat-lbl">Total</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-primary">{{ full_time }}</span><span class="stat-lbl">Full Time</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-warning">{{ part_time }}</span><span class="stat-lbl">Part Time</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-info">{{ contract }}</span><span class="stat-lbl">Contract</span></div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar mb-4">
+    <form method="GET" id="filterForm" class="d-flex flex-wrap gap-2 align-items-center">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" name="q" class="form-control" placeholder="Search name, email, ID..." value="{{ request.GET.q }}">
+        </div>
+        <select name="type" class="form-select filter-select" onchange="this.form.submit()">
+            <option value="">All Types</option>
+            <option value="full_time" {% if request.GET.type == 'full_time' %}selected{% endif %}>Full Time</option>
+            <option value="part_time" {% if request.GET.type == 'part_time' %}selected{% endif %}>Part Time</option>
+            <option value="contract" {% if request.GET.type == 'contract' %}selected{% endif %}>Contract</option>
+        </select>
+        <select name="department" class="form-select filter-select" onchange="this.form.submit()">
+            <option value="">All Departments</option>
+            {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="form-select filter-select" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+            <option value="terminated" {% if request.GET.status == 'terminated' %}selected{% endif %}>Terminated</option>
+        </select>
+        <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-funnel"></i> Filter</button>
+        <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle"></i> Clear</a>
+    </form>
+</div>
+
+<!-- Employee Table -->
+<div class="card card-dash">
+    <div class="table-responsive">
+        <table class="table table-hrms mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Joining Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for emp in employees %}
+            <tr>
+                <td>
+                    <div class="emp-cell">
+                        <div class="emp-avatar">{{ emp.first_name|first }}{{ emp.last_name|first }}</div>
+                        <div>
+                            <div class="emp-name"><a href="{% url 'employee_detail' emp.pk %}">{{ emp.get_full_name }}</a></div>
+                            <div class="emp-role">{{ emp.email }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><code>{{ emp.employee_id }}</code></td>
+                <td><span class="type-badge {{ emp.employee_type }}">{{ emp.get_employee_type_display }}</span></td>
+                <td>{{ emp.department|default:"—" }}</td>
+                <td>{{ emp.designation|default:"—" }}</td>
+                <td>{{ emp.date_of_joining|date:"d M Y" }}</td>
+                <td><span class="status-badge status-{{ emp.status }}">{{ emp.get_status_display }}</span></td>
+                <td>
+                    <div class="action-btns">
+                        <a href="{% url 'employee_detail' emp.pk %}" class="btn-action" title="View"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'employee_edit' emp.pk %}" class="btn-action btn-action-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'employee_delete' emp.pk %}" class="btn-action btn-action-del" title="Delete"><i class="bi bi-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center py-5 text-muted"><i class="bi bi-people display-6 d-block mb-2"></i>No employees found</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Leave Types - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div><h1 class="page-title">Leave Types</h1><p class="page-subtitle">Configure leave types for your organization</p></div>
+    <a href="{% url 'leave_type_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Leave Type</a>
+</div>
+<div class="card card-dash">
+    <div class="table-responsive">
+        <table class="table table-hrms mb-0">
+            <thead><tr><th>Name</th><th>Max Days/Year</th><th>Paid</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for lt in leave_types %}
+            <tr>
+                <td><strong>{{ lt.name }}</strong></td>
+                <td>{{ lt.max_days_per_year }} days</td>
+                <td>{% if lt.is_paid %}<span class="badge bg-success">Paid</span>{% else %}<span class="badge bg-secondary">Unpaid</span>{% endif %}</td>
+                <td class="text-muted">{{ lt.description|default:"—" }}</td>
+                <td>
+                    <div class="action-btns">
+                        <a href="{% url 'leave_type_edit' lt.pk %}" class="btn-action btn-action-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center py-4 text-muted">No leave types defined.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

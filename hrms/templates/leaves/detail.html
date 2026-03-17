@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Leave Detail - HRMS{% endblock %}
+{% block breadcrumb %}
+<a href="{% url 'leave_list' %}" class="breadcrumb-link">Leaves</a>
+<i class="bi bi-chevron-right mx-1 text-muted" style="font-size:11px"></i>
+<span class="current-page">Request #{{ leave.pk }}</span>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Leave Request #{{ leave.pk }}</h1>
+    <span class="status-badge status-{{ leave.status }} fs-6">{{ leave.get_status_display }}</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card card-dash">
+            <div class="card-header-dash"><h5><i class="bi bi-calendar-event me-2"></i>Leave Details</h5></div>
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-row"><span class="detail-label">Employee</span><span class="detail-val">{{ leave.employee.get_full_name }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Employee Type</span><span><span class="type-badge {{ leave.employee.employee_type }}">{{ leave.employee.get_employee_type_display }}</span></span></div>
+                    <div class="detail-row"><span class="detail-label">Leave Type</span><span class="detail-val">{{ leave.leave_type }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Start Date</span><span class="detail-val">{{ leave.start_date|date:"d M Y" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">End Date</span><span class="detail-val">{{ leave.end_date|date:"d M Y" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Total Days</span><span class="detail-val fw-bold text-primary">{{ leave.total_days }} day(s)</span></div>
+                    <div class="detail-row"><span class="detail-label">Applied On</span><span class="detail-val">{{ leave.applied_on|date:"d M Y H:i" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Reason</span><span class="detail-val">{{ leave.reason }}</span></div>
+                </div>
+                {% if leave.review_note %}
+                <div class="alert alert-info mt-3">
+                    <strong>Review Note:</strong> {{ leave.review_note }}<br>
+                    <small class="text-muted">By {{ leave.reviewed_by }} on {{ leave.reviewed_on|date:"d M Y" }}</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        {% if leave.status == 'pending' %}
+        <div class="card card-dash">
+            <div class="card-header-dash"><h5><i class="bi bi-check-circle me-2"></i>Review Request</h5></div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'leave_review' leave.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3"><label class="form-label">Decision</label>{{ review_form.status }}</div>
+                    <div class="mb-3"><label class="form-label">Review Note (optional)</label>{{ review_form.review_note }}</div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="status" value="approved" class="btn btn-success flex-fill">
+                            <i class="bi bi-check-circle me-1"></i>Approve
+                        </button>
+                        <button type="submit" name="status" value="rejected" class="btn btn-danger flex-fill">
+                            <i class="bi bi-x-circle me-1"></i>Reject
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

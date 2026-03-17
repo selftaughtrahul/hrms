@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}My Attendance - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Attendance Tracker</h1>
+        <p class="page-subtitle">Log your daily working hours</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="card card-dash text-center">
+            <div class="card-body py-5">
+                <i class="bi bi-clock-history text-primary mb-3" style="font-size: 3rem;"></i>
+                <h4 class="mb-4">Today's Status</h4>
+                
+                {% if today_record and today_record.status == 'leave' %}
+                    <div class="alert alert-info">You are marked on Leave today.</div>
+                {% elif today_record and today_record.status == 'holiday' %}
+                    <div class="alert alert-success">Today is a Company Holiday.</div>
+                {% elif not has_employee_profile %}
+                    <div class="alert alert-warning">
+                        Your account is not linked to an employee profile. You cannot punch in or out.
+                    </div>
+                {% else %}
+                    <!-- Punch Actions -->
+                    {% if can_punch_in %}
+                        <form method="POST" action="{% url 'attendance_punch_in' %}">{% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-lg w-100"><i class="bi bi-box-arrow-in-right me-2"></i>Punch In</button>
+                        </form>
+                    {% elif can_punch_out %}
+                        <div class="text-success mb-3"><strong>Punched In:</strong> {{ today_record.check_in|time:"h:i A" }}</div>
+                        <form method="POST" action="{% url 'attendance_punch_out' %}">{% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-lg w-100"><i class="bi bi-box-arrow-right me-2"></i>Punch Out</button>
+                        </form>
+                    {% else %}
+                        <div class="text-success mb-2"><strong>Punched In:</strong> {{ today_record.check_in|time:"h:i A" }}</div>
+                        <div class="text-danger mb-3"><strong>Punched Out:</strong> {{ today_record.check_out|time:"h:i A" }}</div>
+                        <div class="alert alert-secondary">Your shift for today is complete.</div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card card-dash h-100">
+            <div class="card-header-dash">
+                <h5 class="mb-0">Recent Attendance Logs</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in attendances %}
+                            <tr>
+                                <td>{{ record.date|date:"D, d M Y" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if record.status == 'present' %}bg-success
+                                        {% elif record.status == 'absent' %}bg-danger
+                                        {% elif record.status == 'half_day' %}bg-warning
+                                        {% else %}bg-info{% endif %}">
+                                        {{ record.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ record.check_in|time:"h:i A"|default:"—" }}</td>
+                                <td>{{ record.check_out|time:"h:i A"|default:"—" }}</td>
+                                <td>
+                                    <!-- Simple Duration Display for UI purposes -->
+                                    {% if record.check_in and record.check_out %}
+                                        Logged
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No attendance records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

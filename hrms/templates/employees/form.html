@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - HRMS{% endblock %}
+{% block breadcrumb %}
+<a href="{% url 'employee_list' %}" class="breadcrumb-link">Employees</a>
+<i class="bi bi-chevron-right mx-1 text-muted" style="font-size:11px"></i>
+<span class="current-page">{{ title }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle">Fill in the details below to {{ action|lower }} employee record</p>
+    </div>
+    <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="card card-form">
+    <form method="POST" enctype="multipart/form-data" id="employeeForm">
+        {% csrf_token %}
+        <!-- Personal Info -->
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-person-fill me-2"></i>Personal Information</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Employee ID <span class="text-danger">*</span></label>
+                    {{ form.employee_id }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                    {{ form.first_name }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                    {{ form.last_name }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    {{ form.email }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Phone</label>
+                    {{ form.phone }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Gender</label>
+                    {{ form.gender }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date of Birth</label>
+                    {{ form.date_of_birth }}
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Address</label>
+                    {{ form.address }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Info -->
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-briefcase-fill me-2"></i>Employment Details</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Employee Type <span class="text-danger">*</span></label>
+                    {{ form.employee_type }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Department</label>
+                    {{ form.department }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Designation</label>
+                    {{ form.designation }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date of Joining <span class="text-danger">*</span></label>
+                    {{ form.date_of_joining }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date of Leaving</label>
+                    {{ form.date_of_leaving }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    {{ form.status }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary Info -->
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-cash-coin me-2"></i>Salary & Leave Quota</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Basic Salary (₹)</label>
+                    {{ form.basic_salary }}
+                </div>
+                <div class="col-md-3" id="hourlyRateField">
+                    <label class="form-label">Hourly Rate (₹)</label>
+                    {{ form.hourly_rate }}
+                    <div class="form-text">For Part-Time/Contract</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Annual Leave Quota</label>
+                    {{ form.annual_leave_quota }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sick Leave Quota</label>
+                    {{ form.sick_leave_quota }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>{{ action }} Employee</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

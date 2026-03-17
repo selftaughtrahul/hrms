@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payslip - {{ payroll.employee.get_full_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; padding: 0; color: #2d3748; }
+        .payslip { width: 100%; margin: 0 auto; }
+        
+        .ps-header { background-color: #4f46e5; color: white; padding: 20px; }
+        .ps-header table { width: 100%; border: none; }
+        .ps-header td { border: none; padding: 0; color: white; }
+        .ps-company { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .ps-title { font-size: 14px; opacity: 0.9; }
+        .ps-period { text-align: right; }
+        .ps-period h3 { font-size: 18px; margin: 0 0 5px 0; }
+        
+        .ps-employee { background-color: #f8fafc; padding: 15px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+        .ps-employee table { width: 100%; font-size: 12px; }
+        .ps-employee td { padding: 5px; vertical-align: top; }
+        .lbl { font-weight: bold; color: #64748b; font-size: 10px; text-transform: uppercase; }
+        
+        .ps-body { width: 100%; }
+        .col-half { width: 48%; float: left; }
+        .col-right { float: right; }
+        
+        .ps-section h4 { font-size: 13px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px; margin-top: 0; }
+        .ps-row { width: 100%; font-size: 13px; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9; }
+        .amt { text-align: right; float: right; font-weight: bold; }
+        
+        .ps-total { font-weight: bold; font-size: 14px; color: #4f46e5; margin-top: 10px; padding-top: 5px; border-top: 1px solid #e2e8f0; }
+        
+        .clearfix { clear: both; }
+        
+        .ps-footer { background-color: #1e2a3b; color: white; padding: 20px; margin-top: 30px; }
+        .ps-footer table { width: 100%; }
+        .ps-footer td { color: white; border: none; padding: 0; }
+        .net-label { font-size: 12px; }
+        .net-amount { font-size: 24px; font-weight: bold; color: #4ade80; }
+        .ps-status { text-align: right; font-size: 16px; font-weight: bold; color: #fbbf24; text-transform: uppercase; }
+        
+        @media print { .no-print { display: none; } }
+        .no-print { text-align: center; margin-bottom: 20px; padding: 20px; background: #f1f5f9; }
+        .btn { background: #4f46e5; color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 15px; margin-right: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+<div class="no-print">
+    <button class="btn" onclick="window.print()">🖨 Print</button>
+    <a href="{% url 'payslip' payroll.pk %}?download=pdf" class="btn" style="background: #10b981;">📄 Download PDF</a>
+    <a href="{% url 'payroll_detail' payroll.pk %}" class="btn" style="background: #64748b;">← Back</a>
+</div>
+
+<div class="payslip">
+    <div class="ps-header">
+        <table>
+            <tr>
+                <td style="width: 60%;">
+                    <!-- Inject Company Branding -->
+                    <div class="ps-company">{% if company %}{{ company.company_name }}{% else %}🏢 HRMS Organization{% endif %}</div>
+                    <div class="ps-title">Salary Slip — Confidential</div>
+                    <div class="ps-title" style="margin-top: 4px; font-size: 11px;">{% if company %}{{ company.company_address }}{% endif %}</div>
+                </td>
+                <td class="ps-period">
+                    <h3>{{ payroll.get_month_display }} {{ payroll.year }}</h3>
+                    {% if payroll.payment_date %}<div style="font-size: 12px;">Paid on {{ payroll.payment_date|date:"d M Y" }}</div>{% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="ps-employee">
+        <table>
+            <tr>
+                <td style="width: 25%;"><div class="lbl">Employee Name</div><div>{{ payroll.employee.get_full_name }}</div></td>
+                <td style="width: 25%;"><div class="lbl">Employee ID</div><div>{{ payroll.employee.employee_id }}</div></td>
+                <td style="width: 25%;"><div class="lbl">Department</div><div>{{ payroll.employee.department|default:"—" }}</div></td>
+                <td style="width: 25%;"><div class="lbl">Designation</div><div>{{ payroll.employee.designation|default:"—" }}</div></td>
+            </tr>
+            <tr>
+                <td style="padding-top: 10px;"><div class="lbl">Employee Type</div><div>{{ payroll.employee.get_employee_type_display }}</div></td>
+                <td style="padding-top: 10px;"><div class="lbl">Payment Mode</div><div>{{ payroll.payment_mode|default:"Bank Transfer" }}</div></td>
+                <td style="padding-top: 10px;"><div class="lbl">PAN / Tax ID</div><div>—</div></td>
+                <td style="padding-top: 10px;"><div class="lbl">Generated On</div><div>{% now "d M Y" %}</div></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="ps-body">
+        <div class="col-half">
+            <div class="ps-section">
+                <h4>Earnings</h4>
+                <div class="ps-row"><span>Basic Salary</span><span class="amt">{{ payroll.basic_salary|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>HRA</span><span class="amt">{{ payroll.hra|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>Travel Allowance</span><span class="amt">{{ payroll.travel_allowance|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>Other Allowances</span><span class="amt">{{ payroll.other_allowances|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>Overtime Pay</span><span class="amt">{{ payroll.overtime_pay|floatformat:2 }}</span></div>
+                <div class="ps-row ps-total" style="border-bottom: none;"><span>Gross Salary</span><span class="amt">{{ payroll.gross_salary|floatformat:2 }}</span></div>
+            </div>
+        </div>
+        
+        <div class="col-half col-right">
+            <div class="ps-section">
+                <h4>Deductions</h4>
+                <div class="ps-row"><span>Provident Fund (PF)</span><span class="amt">{{ payroll.pf_deduction|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>Tax Deducted (TDS)</span><span class="amt">{{ payroll.tax_deduction|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>Leave Deductions</span><span class="amt">{{ payroll.leave_deductions|floatformat:2 }}</span></div>
+                <div class="ps-row"><span>Other Deductions</span><span class="amt">{{ payroll.other_deductions|floatformat:2 }}</span></div>
+                <div class="ps-row ps-total" style="border-bottom: none; color: #ef4444;"><span>Total Deductions</span><span class="amt">{{ payroll.pf_deduction|add:payroll.tax_deduction|add:payroll.other_deductions|add:payroll.leave_deductions|floatformat:2 }}</span></div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <div class="ps-footer">
+        <table>
+            <tr>
+                <td>
+                    <div class="net-label">NET SALARY PAYABLE</div>
+                    <div class="net-amount">{{ payroll.net_salary|floatformat:2 }}</div>
+                </td>
+                <td class="ps-status">
+                    {{ payroll.get_status_display }}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

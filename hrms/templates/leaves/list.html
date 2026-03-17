@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Leave Management - HRMS{% endblock %}
+{% block breadcrumb %}<span class="current-page"><i class="bi bi-calendar-check-fill me-1"></i>Leave Requests</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Leave Management</h1>
+        <p class="page-subtitle">Review and manage employee leave requests</p>
+    </div>
+    <a href="{% url 'leave_apply' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Apply Leave</a>
+</div>
+
+<div class="stat-bar mb-4">
+    <div class="stat-item"><span class="stat-val text-warning">{{ pending_count }}</span><span class="stat-lbl">Pending</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-success">{{ approved_count }}</span><span class="stat-lbl">Approved</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-danger">{{ rejected_count }}</span><span class="stat-lbl">Rejected</span></div>
+</div>
+
+<div class="filter-bar mb-4">
+    <form method="GET" class="d-flex gap-2">
+        <select name="status" class="form-select filter-select" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+            <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+        <a href="{% url 'leave_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle"></i> Clear</a>
+    </form>
+</div>
+
+<div class="card card-dash">
+    <div class="table-responsive">
+        <table class="table table-hrms mb-0">
+            <thead>
+                <tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Applied On</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            {% for leave in leaves %}
+            <tr>
+                <td>
+                    <div class="emp-cell">
+                        <div class="emp-avatar-sm">{{ leave.employee.first_name|first }}{{ leave.employee.last_name|first }}</div>
+                        <div>
+                            <div class="emp-name"><a href="{% url 'leave_detail' leave.pk %}">{{ leave.employee.get_full_name }}</a></div>
+                            <div class="emp-role"><span class="type-badge {{ leave.employee.employee_type }}">{{ leave.employee.get_employee_type_display }}</span></div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ leave.leave_type }}</td>
+                <td>{{ leave.start_date|date:"d M Y" }}</td>
+                <td>{{ leave.end_date|date:"d M Y" }}</td>
+                <td><strong>{{ leave.total_days }}</strong></td>
+                <td>{{ leave.applied_on|date:"d M Y" }}</td>
+                <td><span class="status-badge status-{{ leave.status }}">{{ leave.get_status_display }}</span></td>
+                <td>
+                    <div class="action-btns">
+                        <a href="{% url 'leave_detail' leave.pk %}" class="btn-action" title="View"><i class="bi bi-eye"></i></a>
+                        {% if leave.status == 'pending' %}
+                        <a href="{% url 'leave_cancel' leave.pk %}" class="btn-action btn-action-del" title="Cancel"><i class="bi bi-x-circle"></i></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center py-5 text-muted"><i class="bi bi-calendar-x display-6 d-block mb-2"></i>No leave requests found</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

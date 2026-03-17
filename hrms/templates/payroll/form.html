@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ title }}</h1>
+    <a href="{% url 'payroll_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card card-form">
+    <form method="POST" id="payrollForm">{% csrf_token %}
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-person-fill me-2"></i>Employee & Period</h5>
+            <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Employee</label>{{ form.employee }}</div>
+                <div class="col-md-3"><label class="form-label">Month</label>{{ form.month }}</div>
+                <div class="col-md-3"><label class="form-label">Year</label>{{ form.year }}</div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-plus-circle me-2"></i>Earnings</h5>
+            <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Basic Salary (₹)</label>{{ form.basic_salary }}</div>
+                <div class="col-md-4"><label class="form-label">HRA (₹)</label>{{ form.hra }}</div>
+                <div class="col-md-4"><label class="form-label">Travel Allowance (₹)</label>{{ form.travel_allowance }}</div>
+                <div class="col-md-4"><label class="form-label">Other Allowances (₹)</label>{{ form.other_allowances }}</div>
+                <div class="col-md-4"><label class="form-label">Overtime Pay (₹)</label>{{ form.overtime_pay }}</div>
+                <div class="col-md-4"><label class="form-label">Hours Worked</label>{{ form.hours_worked }}</div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-dash-circle me-2"></i>Deductions</h5>
+            <div class="row g-3">
+                <div class="col-md-3"><label class="form-label">PF (₹)</label>{{ form.pf_deduction }}</div>
+                <div class="col-md-3"><label class="form-label">TDS (₹)</label>{{ form.tax_deduction }}</div>
+                <div class="col-md-3"><label class="form-label">Leave Deductions (₹)</label>{{ form.leave_deductions }}</div>
+                <div class="col-md-3"><label class="form-label">Other Deductions (₹)</label>{{ form.other_deductions }}</div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-send me-2"></i>Payment Details</h5>
+            <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Payment Date</label>{{ form.payment_date }}</div>
+                <div class="col-md-4"><label class="form-label">Payment Mode</label>{{ form.payment_mode }}</div>
+                <div class="col-md-4"><label class="form-label">Status</label>{{ form.status }}</div>
+                <div class="col-12"><label class="form-label">Notes</label>{{ form.notes }}</div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{% url 'payroll_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Save Payroll</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
