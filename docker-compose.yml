@@ -1,0 +1,13 @@
+# docker-compose.yml for local development
+services:
+  web:
+    build: .
+    platform: linux/amd64
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-dev-key
+    command: python hrms/manage.py runserver 0.0.0.0:8000

@@ -1,4 +1,4 @@
-name: Django CI
+name: Django CI with Docker
 
 on:
   push:
@@ -12,20 +12,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-        
-    - name: Install Dependencies
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker Image
       run: |
-        python -m pip install --upgrade pip
-        pip install -r hrms/requirements.txt
+        docker build -t hrms-app .
         
-    - name: Run SaaS Tests
-      working-directory: ./hrms
+    - name: Run SaaS Tests in Docker
       run: |
-        python manage.py test core.tests_saas
-      env:
-        SECRET_KEY: "ci-test-key-not-for-production"
-        DEBUG: "True"
+        docker run --rm \
+          -e SECRET_KEY="ci-test-key-not-for-production" \
+          -e DEBUG="True" \
+          hrms-app \
+          python hrms/manage.py test core.tests_saas
