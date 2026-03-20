@@ -101,6 +101,19 @@ class TenantAwareModel(TimeStampedModel):
     class Meta:
         abstract = True
 
+    def save(self, *args, **kwargs):
+        """
+        Ensures every record is automatically assigned to the current tenant
+        before being saved to the database.
+        """
+        from core.signals import get_current_tenant
+        if not self.tenant:
+            tenant = get_current_tenant()
+            if tenant:
+                self.tenant = (tenant if isinstance(tenant, Tenant) 
+                               else Tenant.objects.get(pk=tenant))
+        super().save(*args, **kwargs)
+
 
 
 class SoftDeleteManager(models.Manager):

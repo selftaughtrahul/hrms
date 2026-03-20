@@ -40,8 +40,29 @@ class EmployeeForm(forms.ModelForm):
             'basic_salary': forms.NumberInput(attrs={'class': 'form-control'}),
             'hourly_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'annual_leave_quota': forms.NumberInput(attrs={'class': 'form-control'}),
+            'annual_leave_quota': forms.NumberInput(attrs={'class': 'form-control'}),
             'sick_leave_quota': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+    def clean_employee_id(self):
+        emp_id = self.cleaned_data.get('employee_id')
+        # TenantManager automatically filters by current tenant
+        qs = Employee.objects.filter(employee_id=emp_id)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("An employee with this ID already exists in your company.")
+        return emp_id
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # TenantManager automatically filters by current tenant
+        qs = Employee.objects.filter(email=email)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("An employee with this email already exists in your company.")
+        return email
 
 
 class DepartmentForm(forms.ModelForm):
@@ -52,3 +73,13 @@ class DepartmentForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        # TenantManager automatically filters by current tenant
+        qs = Department.objects.filter(name=name)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("A department with this name already exists in your company.")
+        return name

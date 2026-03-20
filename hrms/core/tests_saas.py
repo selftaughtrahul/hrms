@@ -170,6 +170,63 @@ class SaaSTestCase(TestCase):
         self.assertEqual(data['unread_count'], 2, f"Expected 2 logs for Tenant B, got {data['unread_count']}. Data: {data}")
         self.assertEqual(data['activities'][0]['description'], 'Log B')
 
+    def test_automatic_tenant_assignment(self):
+        """Verify that record creation without explicit tenant auto-assigns the current tenant."""
+        # Set tenant A in thread
+        set_current_tenant(self.tenant_a)
+        
+        # Create department WITHOUT tenant=self.tenant_a
+        new_dept = Department.objects.create(name="Auto Assigned Dept")
+        
+        # Verify it was assigned correctly
+        self.assertEqual(new_dept.tenant, self.tenant_a)
+        
+        # Test Employee similarly
+        new_emp = Employee.objects.create(
+            employee_id="AUTO-001",
+            first_name="Auto",
+            last_name="User",
+            email="auto@a.com",
+            date_of_joining=datetime.date.today(),
+            status='active'
+        )
+        self.assertEqual(new_emp.tenant, self.tenant_a)
+        
+        set_current_tenant(None)
+
+    def test_employee_form_uniqueness(self):
+        """Verify that EmployeeForm uniquely validates fields within a tenant."""
+        from employees.forms import EmployeeForm
+        
+        # 1. Try to create duplicate in Tenant A
+        set_current_tenant(self.tenant_a)
+        form_data = {
+            'employee_id': 'EMP-A-001', # Already exists in Tenant A
+            'first_name': 'Duplicate',
+            'last_name': 'User',
+            'email': 'duplicate@a.com',
+            'date_of_joining': datetime.date.today(),
+            'status': 'active',
+            'gender': 'male',
+            'employee_type': 'full_time',
+            'basic_salary': 50000,
+            'annual_leave_quota': 12,
+            'sick_leave_quota': 6
+        }
+        form = EmployeeForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('employee_id', form.errors)
+        self.assertEqual(form.errors['employee_id'][0], "An employee with this ID already exists in your company.")
+        
+        # 2. Try to use Tenant A's ID in Tenant B (Should be VALID)
+        set_current_tenant(self.tenant_b)
+        form_data['employee_id'] = 'EMP-A-001' # Exists in A, but NOT in B
+        form_data['email'] = 'new@b.com'
+        form = EmployeeForm(data=form_data)
+        self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
+        
+        set_current_tenant(None)
+
     def tearDown(self):
         # Ensure thread-local is clean for the next test
         set_current_tenant(None)

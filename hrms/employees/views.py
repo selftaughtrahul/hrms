@@ -91,13 +91,9 @@ class EmployeeCreateView(HRMSLoginMixin, HRMSCreateMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        try:
-            EmployeeService.create_employee(form.cleaned_data)
-            # Let CreateView save naturally; service used for validation
-            return super().form_valid(form)
-        except DuplicateEmployeeIDError as exc:
-            form.add_error('employee_id', str(exc))
-            return self.form_invalid(form)
+        # Service now only used for complex business logic if needed.
+        # Unique ID validation is handled by the model's unique_together constraint.
+        return super().form_valid(form)
 
 
 class EmployeeUpdateView(HRMSLoginMixin, HRMSUpdateMixin, UpdateView):
