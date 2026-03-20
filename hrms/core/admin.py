@@ -34,5 +34,7 @@ class CompanyConfigAdmin(admin.ModelAdmin):
     readonly_fields = ['tenant']
 
     def plan_display(self, obj):
-        return obj.tenant.get_plan_display()
+        if obj.tenant:
+            return obj.tenant.get_plan_display()
+        return "N/A"
     plan_display.short_description = 'Plan'
