@@ -3,8 +3,6 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">{{ payroll.employee.get_full_name }}</h1>
-        <p class="page-subtitle">{{ payroll.get_month_display }} {{ payroll.year }} Payroll</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'payslip' payroll.pk %}" class="btn btn-outline-primary" target="_blank"><i class="bi bi-file-earmark-text me-1"></i>Web Slip</a>
