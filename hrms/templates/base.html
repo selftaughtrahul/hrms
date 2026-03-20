@@ -79,10 +79,6 @@
             <span>Departments</span>
         </a>
 
-        <a href="{% url 'attendance_record' %}" class="nav-link {% if 'attendance_record' in request.resolver_match.url_name %}active{% endif %}">
-            <i class="bi bi-clock-history"></i>
-            <span>My Attendance</span>
-        </a>
 
         {% if user.is_staff %}
         <a href="{% url 'attendance_manage_list' %}" class="nav-link {% if 'manage' in request.resolver_match.url_name and 'attendance' in request.resolver_match.url_name %}active{% endif %}">
