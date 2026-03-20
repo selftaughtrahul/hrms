@@ -154,6 +154,10 @@
             {% endblock %}
         </div>
         <div class="header-actions">
+            {% block header_actions %}
+            <!-- Context-dependent buttons will appear here -->
+            {% endblock %}
+            
             <!-- Dropdown Notification Bell -->
             <div class="dropdown">
                 <a href="#" class="header-action-btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Activity Feed">

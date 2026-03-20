@@ -1,29 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}Employees - HRMS{% endblock %}
 {% block breadcrumb %}<span class="current-page"><i class="bi bi-people-fill me-1"></i>Employees</span>{% endblock %}
+{% block header_actions %}
+<a href="{% url 'employee_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Employee</a>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <div>
-    </div>
     <div class="page-actions">
-        <a href="{% url 'employee_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Employee</a>
     </div>
 </div>
 
-<!-- Summary Badges -->
-<div class="stat-bar mb-4">
-    <div class="stat-item"><span class="stat-val">{{ total }}</span><span class="stat-lbl">Total</span></div>
-    <div class="stat-divider"></div>
-    <div class="stat-item"><span class="stat-val text-primary">{{ full_time }}</span><span class="stat-lbl">Full
-            Time</span></div>
-    <div class="stat-divider"></div>
-    <div class="stat-item"><span class="stat-val text-warning">{{ part_time }}</span><span class="stat-lbl">Part
-            Time</span></div>
-    <div class="stat-divider"></div>
-    <div class="stat-item"><span class="stat-val text-info">{{ contract }}</span><span class="stat-lbl">Contract</span>
-    </div>
-</div>
+
 
 <!-- Filters -->
 <div class="filter-bar mb-4">
