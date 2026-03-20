@@ -1,13 +1,43 @@
-# docker-compose.yml for local development
+version: '3.8'
+
 services:
   web:
     build: .
-    platform: linux/amd64
+    command: gunicorn --chdir hrms hrms_project.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
     environment:
-      - DEBUG=True
-      - SECRET_KEY=django-insecure-dev-key
-    command: python hrms/manage.py runserver 0.0.0.0:8000
+      - DEBUG=False
+      - SECRET_KEY=django-insecure-production-ready-key
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  celery-worker:
+    build: .
+    command: celery -A hrms_project worker -l info
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=django-insecure-production-ready-key
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/app/hrms
+    depends_on:
+      - redis
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
+    depends_on:
+      - web

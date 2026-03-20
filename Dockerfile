@@ -25,8 +25,17 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Create static directories
+RUN mkdir -p /app/hrms/staticfiles /app/hrms/media
+
+# Make entrypoint executable
+RUN chmod +x /app/entrypoint.sh
+
 # Port for Django
 EXPOSE 8000
 
-# Default command
-CMD ["python", "hrms/manage.py", "runserver", "0.0.0.0:8000"]
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command for web (can be overridden in compose)
+CMD ["gunicorn", "--chdir", "hrms", "hrms_project.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
