@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Payroll Detail - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ payroll.employee.get_full_name }}</h1>
+        <p class="page-subtitle">{{ payroll.get_month_display }} {{ payroll.year }} Payroll</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'payslip' payroll.pk %}" class="btn btn-outline-primary" target="_blank"><i class="bi bi-file-earmark-text me-1"></i>Web Slip</a>
+        <a href="{% url 'payslip' payroll.pk %}?download=pdf" class="btn btn-primary ms-2"><i class="bi bi-file-earmark-pdf-fill me-1"></i>PDF</a>
+        <a href="{% url 'payroll_edit' payroll.pk %}" class="btn btn-secondary ms-2"><i class="bi bi-pencil me-1"></i>Edit</a>
+        {% if payroll.status != 'paid' %}
+        <form method="POST" action="{% url 'payroll_mark_paid' payroll.pk %}" class="d-inline ms-2">{% csrf_token %}
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Mark Paid</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card card-dash mb-4">
+            <div class="card-header-dash"><h5><i class="bi bi-plus-circle me-2 text-success"></i>Earnings</h5></div>
+            <div class="card-body">
+                <div class="salary-row"><span>Basic Salary</span><span>₹{{ payroll.basic_salary|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>HRA</span><span>₹{{ payroll.hra|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>Travel Allowance</span><span>₹{{ payroll.travel_allowance|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>Other Allowances</span><span>₹{{ payroll.other_allowances|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>Overtime Pay</span><span>₹{{ payroll.overtime_pay|floatformat:2 }}</span></div>
+                <div class="salary-row salary-total"><span><strong>Gross Salary</strong></span><span class="text-primary fw-bold">₹{{ payroll.gross_salary|floatformat:2 }}</span></div>
+            </div>
+        </div>
+        <div class="card card-dash">
+            <div class="card-header-dash"><h5><i class="bi bi-dash-circle me-2 text-danger"></i>Deductions</h5></div>
+            <div class="card-body">
+                <div class="salary-row"><span>Provident Fund (PF)</span><span class="text-danger">-₹{{ payroll.pf_deduction|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>Tax (TDS)</span><span class="text-danger">-₹{{ payroll.tax_deduction|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>Leave Deductions</span><span class="text-danger">-₹{{ payroll.leave_deductions|floatformat:2 }}</span></div>
+                <div class="salary-row"><span>Other Deductions</span><span class="text-danger">-₹{{ payroll.other_deductions|floatformat:2 }}</span></div>
+                <div class="salary-row salary-total"><span><strong>Net Salary</strong></span><span class="text-success fw-bold fs-5">₹{{ payroll.net_salary|floatformat:2 }}</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card card-dash">
+            <div class="card-header-dash"><h5>Payment Info</h5></div>
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-row"><span class="detail-label">Status</span><span class="status-badge status-{{ payroll.status }}">{{ payroll.get_status_display }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Payment Mode</span><span>{{ payroll.payment_mode|default:"—" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Payment Date</span><span>{{ payroll.payment_date|date:"d M Y"|default:"—" }}</span></div>
+                    {% if payroll.notes %}
+                    <div class="detail-row"><span class="detail-label">Notes</span><span>{{ payroll.notes }}</span></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

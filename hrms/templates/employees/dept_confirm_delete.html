@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Delete Department - HRMS{% endblock %}
+{% block content %}
+<div class="card card-dash" style="max-width:500px;margin:0 auto;margin-top:2rem;">
+    <div class="card-body text-center py-5">
+        <div class="delete-icon mb-3"><i class="bi bi-diagram-3"></i></div>
+        <h4>Delete Department</h4>
+        <p class="text-muted mb-4">Are you sure you want to delete <strong>{{ dept.name }}</strong>?</p>
+        <form method="POST">{% csrf_token %}
+            <a href="{% url 'department_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

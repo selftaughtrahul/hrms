@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ title }}</h1>
+    <a href="{% url 'payroll_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card card-form">
+    <form method="POST" id="payrollForm">{% csrf_token %}
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-person-fill me-2"></i>Employee & Period</h5>
+            <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Employee</label>{{ form.employee }}</div>
+                <div class="col-md-3"><label class="form-label">Month</label>{{ form.month }}</div>
+                <div class="col-md-3"><label class="form-label">Year</label>{{ form.year }}</div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-plus-circle me-2"></i>Earnings</h5>
+            <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Basic Salary (₹)</label>{{ form.basic_salary }}</div>
+                <div class="col-md-4"><label class="form-label">HRA (₹)</label>{{ form.hra }}</div>
+                <div class="col-md-4"><label class="form-label">Travel Allowance (₹)</label>{{ form.travel_allowance }}</div>
+                <div class="col-md-4"><label class="form-label">Other Allowances (₹)</label>{{ form.other_allowances }}</div>
+                <div class="col-md-4"><label class="form-label">Overtime Pay (₹)</label>{{ form.overtime_pay }}</div>
+                <div class="col-md-4"><label class="form-label">Hours Worked</label>{{ form.hours_worked }}</div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-dash-circle me-2"></i>Deductions</h5>
+            <div class="row g-3">
+                <div class="col-md-3"><label class="form-label">PF (₹)</label>{{ form.pf_deduction }}</div>
+                <div class="col-md-3"><label class="form-label">TDS (₹)</label>{{ form.tax_deduction }}</div>
+                <div class="col-md-3"><label class="form-label">Leave Deductions (₹)</label>{{ form.leave_deductions }}</div>
+                <div class="col-md-3"><label class="form-label">Other Deductions (₹)</label>{{ form.other_deductions }}</div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h5 class="form-section-title"><i class="bi bi-send me-2"></i>Payment Details</h5>
+            <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">Payment Date</label>{{ form.payment_date }}</div>
+                <div class="col-md-4"><label class="form-label">Payment Mode</label>{{ form.payment_mode }}</div>
+                <div class="col-md-4"><label class="form-label">Status</label>{{ form.status }}</div>
+                <div class="col-12"><label class="form-label">Notes</label>{{ form.notes }}</div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{% url 'payroll_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Save Payroll</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const empSelect = document.getElementById('id_employee');
+    const monthSelect = document.getElementById('id_month');
+    const yearInput = document.getElementById('id_year');
+    
+    // Auto-calculate fields
+    const basicInput = document.getElementById('id_basic_salary');
+    const hraInput = document.getElementById('id_hra');
+    const pfInput = document.getElementById('id_pf_deduction');
+    const leaveInput = document.getElementById('id_leave_deductions');
+    const notesInput = document.getElementById('id_notes');
+
+    function fetchPayrollData() {
+        const empId = empSelect.value;
+        const month = monthSelect.value;
+        const year = yearInput.value;
+
+        if (!empId) return; // Don't fetch if no employee selected
+
+        const url = `{% url 'api_payroll_calculate' %}?employee_id=${empId}&month=${month}&year=${year}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // Reset fields to 0 if there's an error (like a future date)
+                    basicInput.value = 0;
+                    hraInput.value = 0;
+                    pfInput.value = 0;
+                    leaveInput.value = 0;
+                    notesInput.value = data.error;
+                } else {
+                    // Update form fields with calculated data
+                    if (data.basic_salary !== undefined) basicInput.value = data.basic_salary;
+                    if (data.hra !== undefined) hraInput.value = data.hra;
+                    if (data.pf_deduction !== undefined) pfInput.value = data.pf_deduction;
+                    if (data.leave_deductions !== undefined) leaveInput.value = data.leave_deductions;
+                    
+                    // Only overwrite notes if we generated an auto-deduction message
+                    if (data.notes) {
+                        const currentNotes = notesInput.value;
+                        if (!currentNotes.includes(data.notes)) {
+                             notesInput.value = data.notes + (currentNotes ? "\n" + currentNotes : "");
+                        }
+                    } else {
+                        notesInput.value = ""; // Clear if no notes from backend
+                    }
+                }
+
+                // Trigger the live preview calculation in hrms.js
+                if (window.jQuery) {
+                    jQuery(basicInput).trigger('input');
+                } else {
+                    const event = new Event('input', { bubbles: true });
+                    basicInput.dispatchEvent(event);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Attach listeners
+    if (empSelect) empSelect.addEventListener('change', fetchPayrollData);
+    if (monthSelect) monthSelect.addEventListener('change', fetchPayrollData);
+    if (yearInput) yearInput.addEventListener('change', fetchPayrollData);
+
+    // Initial check on load: if employee is pre-filled, fetch data immediately
+    if (empSelect && empSelect.value) {
+        // A slight delay ensures the page and all inputs are fully ready
+        setTimeout(fetchPayrollData, 100);
+    }
+});
+</script>
+{% endblock %}

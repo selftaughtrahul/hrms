@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Global Settings - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Global Settings</h1>
+        <p class="page-subtitle">Configure company branding and application-wide themes.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card card-dash">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <h5 class="mb-3 text-primary border-bottom pb-2">Branding</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" for="{{ form.company_name.id_for_label }}">Company Name</label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}<div class="text-danger small mt-1">{{ form.company_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" for="{{ form.company_logo.id_for_label }}">Company Logo</label>
+                            {{ form.company_logo }}
+                            {% if form.company_logo.errors %}<div class="text-danger small mt-1">{{ form.company_logo.errors.0 }}</div>{% endif %}
+                            <div class="form-text">Recommended: Transparent PNG, 200x50px</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold" for="{{ form.company_address.id_for_label }}">HQ Address</label>
+                        {{ form.company_address }}
+                        {% if form.company_address.errors %}<div class="text-danger small mt-1">{{ form.company_address.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <h5 class="mb-3 text-primary border-bottom pb-2 mt-4">UI Theming</h5>
+                    <div class="alert alert-info d-flex align-items-center mb-4">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            Changes made to the theme will instantly apply to the entire HRMS web portal for all users upon clicking save.
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold" for="{{ form.global_font_family.id_for_label }}">Global Font Family</label>
+                            {{ form.global_font_family }}
+                            {% if form.global_font_family.errors %}<div class="text-danger small mt-1">{{ form.global_font_family.errors.0 }}</div>{% endif %}
+                            <div class="form-text">Changing this updates the typography across all modules.</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold" for="{{ form.global_background_color.id_for_label }}">App Background Color</label>
+                            <div class="d-flex align-items-center">
+                                {{ form.global_background_color }}
+                                <button type="button" class="btn btn-sm btn-outline-secondary border-0 ms-2" onclick="document.getElementById('{{ form.global_background_color.id_for_label }}').value = '#f4f6f9';" title="Reset to default background">
+                                    <i class="bi bi-arrow-counterclockwise"></i> default
+                                </button>
+                            </div>
+                            {% if form.global_background_color.errors %}<div class="text-danger small mt-1">{{ form.global_background_color.errors.0 }}</div>{% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold" for="{{ form.primary_color.id_for_label }}">Primary Accent Color</label>
+                            <div class="d-flex align-items-center">
+                                {{ form.primary_color }}
+                                <button type="button" class="btn btn-sm btn-outline-secondary border-0 ms-2" onclick="document.getElementById('{{ form.primary_color.id_for_label }}').value = '#0d6efd';" title="Reset to default primary">
+                                    <i class="bi bi-arrow-counterclockwise"></i> default
+                                </button>
+                            </div>
+                            {% if form.primary_color.errors %}<div class="text-danger small mt-1">{{ form.primary_color.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3 text-primary border-bottom pb-2 mt-4">Payroll Settings</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold" for="{{ form.hra_percentage.id_for_label }}">HRA Global Percentage (%)</label>
+                            {{ form.hra_percentage }}
+                            {% if form.hra_percentage.errors %}<div class="text-danger small mt-1">{{ form.hra_percentage.errors.0 }}</div>{% endif %}
+                            <div class="form-text">Used to auto-calculate House Rent Allowance on Master Payrolls. Default is 40.0.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold" for="{{ form.pf_percentage.id_for_label }}">PF Global Percentage (%)</label>
+                            {{ form.pf_percentage }}
+                            {% if form.pf_percentage.errors %}<div class="text-danger small mt-1">{{ form.pf_percentage.errors.0 }}</div>{% endif %}
+                            <div class="form-text">Used to auto-calculate Provident Fund deductions. Default is 12.0.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-5"><i class="bi bi-check2-circle me-1"></i> Save Configuration</button>
+                        <a href="/" class="btn btn-light px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card card-dash bg-light border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted fw-bold mb-3">Current Branding Overview</h6>
+                <div class="text-center p-4 bg-white rounded shadow-sm mb-4">
+                    {% if company.company_logo %}
+                        <img src="{{ company.company_logo.url }}" alt="{{ company.company_name }} Logo" style="max-height: 80px; max-width: 100%; object-fit: contain;">
+                    {% else %}
+                        <div class="display-6 fw-bold text-primary">{{ company.company_name }}</div>
+                    {% endif %}
+                </div>
+                
+                <h6 class="text-uppercase text-muted fw-bold mb-3">Theme Preview</h6>
+                <div class="p-3 rounded border" style="background-color: var(--bs-body-bg); font-family: var(--bs-body-font-family);">
+                    <h5 style="color: var(--bs-heading-color);">Typography Header</h5>
+                    <p style="color: var(--bs-body-color);">This is how paragraph text will render using the selected font family.</p>
+                    <button class="btn btn-sm text-white" style="background-color: var(--hrms-primary); border-color: var(--hrms-primary);">Primary Button Style</button>
+                    <button class="btn btn-sm btn-outline-secondary ms-1">Secondary</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

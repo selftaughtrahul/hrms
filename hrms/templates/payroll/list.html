@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Payroll - HRMS{% endblock %}
+{% block breadcrumb %}<span class="current-page"><i class="bi bi-cash-coin me-1"></i>Payroll</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Payroll Management</h1>
+        <p class="page-subtitle">Process and manage employee salaries</p>
+    </div>
+    <a href="{% url 'payroll_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Create Payroll</a>
+</div>
+
+<div class="stat-bar mb-4">
+    <form method="GET" class="d-flex gap-2 align-items-center">
+        <select name="month" class="form-select filter-select" onchange="this.form.submit()">
+            {% for num, name in months %}
+            <option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+        <select name="year" class="form-select filter-select" onchange="this.form.submit()">
+            {% for y in years %}<option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+        </select>
+    </form>
+    <div class="stat-divider ms-3"></div>
+    <div class="stat-item"><span class="stat-val text-success">₹{{ total_net|floatformat:0 }}</span><span class="stat-lbl">Total Net Pay</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-primary">{{ paid_count }}</span><span class="stat-lbl">Paid</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item"><span class="stat-val text-warning">{{ draft_count }}</span><span class="stat-lbl">Draft</span></div>
+</div>
+
+<div class="card card-dash">
+    <div class="table-responsive">
+        <table class="table table-hrms mb-0">
+            <thead>
+                <tr><th>Employee</th><th>Type</th><th>Basic</th><th>Gross</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            {% for p in payrolls %}
+            <tr>
+                <td>
+                    <div class="emp-cell">
+                        <div class="emp-avatar-sm">{{ p.employee.first_name|first }}{{ p.employee.last_name|first }}</div>
+                        <div>
+                            <div class="emp-name"><a href="{% url 'payroll_detail' p.pk %}">{{ p.employee.get_full_name }}</a></div>
+                            <div class="emp-role">{{ p.employee.designation|default:"—" }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="type-badge {{ p.employee.employee_type }}">{{ p.employee.get_employee_type_display }}</span></td>
+                <td>₹{{ p.basic_salary|floatformat:2 }}</td>
+                <td>₹{{ p.gross_salary|floatformat:2 }}</td>
+                <td class="text-danger">-₹{{ p.pf_deduction|add:p.tax_deduction|add:p.other_deductions|floatformat:2 }}</td>
+                <td class="text-success fw-bold">₹{{ p.net_salary|floatformat:2 }}</td>
+                <td><span class="status-badge status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+                <td>
+                    <div class="action-btns">
+                        <a href="{% url 'payroll_detail' p.pk %}" class="btn-action" title="View"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'payslip' p.pk %}" class="btn-action" title="Payslip"><i class="bi bi-file-earmark-text"></i></a>
+                        <a href="{% url 'payroll_edit' p.pk %}" class="btn-action btn-action-edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center py-5 text-muted"><i class="bi bi-cash-stack display-6 d-block mb-2"></i>No payroll records for this period</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

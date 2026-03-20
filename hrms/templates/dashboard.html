@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - HRMS{% endblock %}
+{% block breadcrumb %}<span class="current-page"><i class="bi bi-grid-1x2-fill me-1"></i>Dashboard</span>{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back! Here's what's happening in your organization today.</p>
+    </div>
+    <div class="page-actions">
+        <span class="badge badge-date"><i class="bi bi-calendar3 me-1"></i>{{ today|date:"D, d M Y" }}</span>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card kpi-primary">
+            <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="kpi-content">
+                <div class="kpi-value">{{ total_employees }}</div>
+                <div class="kpi-label">Active Employees</div>
+                <div class="kpi-breakdown">
+                    <span class="type-badge full-time">FT: {{ full_time_count }}</span>
+                    <span class="type-badge part-time">PT: {{ part_time_count }}</span>
+                    <span class="type-badge contract">C: {{ contract_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card kpi-warning">
+            <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-content">
+                <div class="kpi-value">{{ pending_leaves }}</div>
+                <div class="kpi-label">Pending Leave Requests</div>
+                <a href="{% url 'leave_list' %}?status=pending" class="kpi-link">Review now →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card kpi-success">
+            <div class="kpi-icon"><i class="bi bi-cash-stack"></i></div>
+            <div class="kpi-content">
+                <div class="kpi-value">{{ paid_payrolls }}/{{ current_payroll }}</div>
+                <div class="kpi-label">Payrolls Paid This Month</div>
+                <a href="{% url 'payroll_list' %}" class="kpi-link">View payroll →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card kpi-info">
+            <div class="kpi-icon"><i class="bi bi-calendar-heart-fill"></i></div>
+            <div class="kpi-content">
+                <div class="kpi-value">{{ upcoming_holidays|length }}</div>
+                <div class="kpi-label">Upcoming Holidays</div>
+                <a href="{% url 'holiday_list' %}" class="kpi-link">View calendar →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Type Distribution -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-4">
+        <div class="card card-dash">
+            <div class="card-header-dash">
+                <h5><i class="bi bi-pie-chart-fill me-2"></i>Employee Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="distribution-bar mb-3">
+                    {% if total_employees > 0 %}
+                    <div class="dist-segment ft" style="width: {% widthratio full_time_count total_employees 100 %}%" title="Full Time: {{ full_time_count }}"></div>
+                    <div class="dist-segment pt" style="width: {% widthratio part_time_count total_employees 100 %}%" title="Part Time: {{ part_time_count }}"></div>
+                    <div class="dist-segment ct" style="width: {% widthratio contract_count total_employees 100 %}%" title="Contract: {{ contract_count }}"></div>
+                    {% endif %}
+                </div>
+                <div class="dist-legend">
+                    <div class="legend-item"><span class="legend-dot ft"></span>Full Time <strong>{{ full_time_count }}</strong></div>
+                    <div class="legend-item"><span class="legend-dot pt"></span>Part Time <strong>{{ part_time_count }}</strong></div>
+                    <div class="legend-item"><span class="legend-dot ct"></span>Contract <strong>{{ contract_count }}</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card card-dash">
+            <div class="card-header-dash">
+                <h5><i class="bi bi-calendar-heart-fill me-2"></i>Upcoming Holidays</h5>
+                <a href="{% url 'holiday_list' %}" class="see-all">See all</a>
+            </div>
+            <div class="card-body p-0">
+                {% if upcoming_holidays %}
+                <ul class="data-list">
+                    {% for holiday in upcoming_holidays %}
+                    <li class="data-list-item">
+                        <div class="data-date">
+                            <span class="date-day">{{ holiday.date|date:"d" }}</span>
+                            <span class="date-month">{{ holiday.date|date:"M" }}</span>
+                        </div>
+                        <div class="data-info">
+                            <span class="data-name">{{ holiday.name }}</span>
+                            <span class="badge badge-{{ holiday.holiday_type }}">{{ holiday.get_holiday_type_display }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state py-4"><i class="bi bi-calendar-x"></i><p>No upcoming holidays</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card card-dash">
+            <div class="card-header-dash">
+                <h5><i class="bi bi-clock-history me-2"></i>Recent Leave Requests</h5>
+                <a href="{% url 'leave_list' %}" class="see-all">See all</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_leaves %}
+                <ul class="data-list">
+                    {% for leave in recent_leaves %}
+                    <li class="data-list-item">
+                        <div class="emp-avatar-sm">{{ leave.employee.first_name|first }}{{ leave.employee.last_name|first }}</div>
+                        <div class="data-info">
+                            <span class="data-name">{{ leave.employee.get_full_name }}</span>
+                            <span class="text-muted small">{{ leave.leave_type }} · {{ leave.total_days }}d</span>
+                        </div>
+                        <span class="status-badge status-{{ leave.status }}">{{ leave.get_status_display }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state py-4"><i class="bi bi-calendar-x"></i><p>No leave requests</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Employees -->
+<div class="card card-dash">
+    <div class="card-header-dash">
+        <h5><i class="bi bi-person-lines-fill me-2"></i>Recently Joined Employees</h5>
+        <a href="{% url 'employee_list' %}" class="see-all">View all</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hrms mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Department</th>
+                    <th>Joined</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for emp in recent_employees %}
+            <tr>
+                <td>
+                    <div class="emp-cell">
+                        <div class="emp-avatar">{{ emp.first_name|first }}{{ emp.last_name|first }}</div>
+                        <div>
+                            <div class="emp-name"><a href="{% url 'employee_detail' emp.pk %}">{{ emp.get_full_name }}</a></div>
+                            <div class="emp-role">{{ emp.designation }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><code>{{ emp.employee_id }}</code></td>
+                <td><span class="type-badge {{ emp.employee_type }}">{{ emp.get_employee_type_display }}</span></td>
+                <td>{{ emp.department|default:"—" }}</td>
+                <td>{{ emp.date_of_joining|date:"d M Y" }}</td>
+                <td><span class="status-badge status-{{ emp.status }}">{{ emp.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center py-4 text-muted">No employees found</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

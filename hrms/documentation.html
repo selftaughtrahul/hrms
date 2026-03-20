@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS - Project Documentation</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #64748b;
+            --bg-color: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --accent: #0ea5e9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* ─── Layout ─── */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar Navigation ─── */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary);
+            font-weight: 700;
+            padding: 0 1rem 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        /* ─── Main Content Area ─── */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 3rem 4rem;
+            max-width: 1000px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            padding: 3rem;
+            color: white;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            blur: 20px;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        /* ─── Content Sections ─── */
+        section {
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header i {
+            font-size: 1.75rem;
+            color: var(--primary);
+            background: #e0e7ff;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        /* ─── Feature Grid ─── */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            border-color: var(--primary-light);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        /* ─── Colored Icons ─── */
+        .bg-indigo { background: #e0e7ff; color: #4f46e5; }
+        .bg-emerald { background: #d1fae5; color: #10b981; }
+        .bg-amber { background: #fef3c7; color: #d97706; }
+        .bg-rose { background: #ffe4e6; color: #e11d48; }
+
+        /* ─── Architecture Diagram ─── */
+        .arch-diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .arch-layer {
+            background: var(--bg-color);
+            border: 1px dashed var(--secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .arch-layer:last-child {
+            margin-bottom: 0;
+        }
+
+        .layer-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .layer-items {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .arch-box {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connector {
+            text-align: center;
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ─── Code Block ─── */
+        .code-block {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .keyword { color: #f472b6; }
+        .string { color: #a7f3d0; }
+        .comment { color: #94a3b8; }
+        .method { color: #60a5fa; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="bi bi-buildings-fill"></i>
+            </div>
+            <div class="brand-text">
+                <h1>HRMS</h1>
+                <span>Documentation</span>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-section">
+                <div class="nav-title">Overview</div>
+                <a href="#introduction" class="nav-link"><i class="bi bi-info-circle"></i> Introduction</a>
+                <a href="#modules" class="nav-link"><i class="bi bi-grid-1x2"></i> Core Modules</a>
+                <a href="#tech-stack" class="nav-link"><i class="bi bi-stack"></i> Technology Stack</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">System Architecture</div>
+                <a href="#oop-design" class="nav-link"><i class="bi bi-diagram-3"></i> OOP Design Pattern</a>
+                <a href="#business-logic" class="nav-link"><i class="bi bi-gear"></i> Service Layer</a>
+                <a href="#security" class="nav-link"><i class="bi bi-shield-check"></i> Security & Core</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="hero">
+            <h2>Human Resource Management System</h2>
+            <p>Industry-standard, scalable, and secure web application built with Django and Bootstrap for managing end-to-end workforce operations.</p>
+        </div>
+
+        <!-- Introduction Section -->
+        <section id="introduction">
+            <div class="section-header">
+                <i class="bi bi-journal-text"></i>
+                <h3>Introduction</h3>
+            </div>
+            <p>The HRMS (Human Resource Management System) is a comprehensive enterprise application designed to streamline HR operations. It centralizes employee records, tracks attendance and leaves, manages organizational holidays, and automates monthly payroll processing.</p>
+            <p>The system is built upon a robust, layered Object-Oriented Programming (OOP) architecture, ensuring clean separation of concerns, high security, and maintainability for future scaling.</p>
+        </section>
+
+        <!-- Modules Section -->
+        <section id="modules">
+            <div class="section-header">
+                <i class="bi bi-box-seam"></i>
+                <h3>Core Modules</h3>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon bg-indigo">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h4>Employee Management</h4>
+                    <p>Maintain comprehensive profiles for Full-Time, Part-Time, and Contract employees. Track departments, designations, joining dates, and employment status seamlessly.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-emerald">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                    </div>
+                    <h4>Leave Management</h4>
+                    <p>Allow employees to apply for various leave types (Annual, Sick, Casual). Enforces overlap validation, maintains status tracking (Pending, Approved, Rejected), and auto-calculates remaining balances.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-amber">
+                        <i class="bi bi-calendar-event-fill"></i>
+                    </div>
+                    <h4>Holiday Management</h4>
+                    <p>Organize organizational calendars with National, Regional, and Company holidays. Quickly view upcoming time-off across the company.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-rose">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <h4>Payroll Processing</h4>
+                    <p>Automate monthly salary calculations. Generates structured payslips detailing Basic Pay, HRA, Allowances, and automated deductions (PF, TDS). Tracks payment status and histories.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="oop-design">
+            <div class="section-header">
+                <i class="bi bi-diagram-3-fill"></i>
+                <h3>Industry-Standard Architecture</h3>
+            </div>
+            <p>The system departs from standard procedural Django setups, utilizing a highly structured, scalable Service-Oriented Architecture (SOA). This prevents "Fat Models" and "Fat Views", ensuring business logic is isolated, testable, and reusable.</p>
+            
+            <div class="arch-diagram">
+                <div class="arch-layer">
+                    <div class="layer-title"><i class="bi bi-browser-chrome"></i> Presentation Layer (Templates & CSS)</div>
+                    <div class="layer-items">
+                        <div class="arch-box"><i class="bi bi-filetype-html"></i> Bootstrap 5 UI</div>
+                        <div class="arch-box"><i class="bi bi-filetype-css"></i> Custom CSS System</div>
+                        <div class="arch-box"><i class="bi bi-layout-sidebar"></i> Responsive Layouts</div>
+                    </div>
+                </div>
+                
+                <div class="connector"><i class="bi bi-arrow-down"></i></div>
+
+                <div class="arch-layer">
+                    <div class="layer-title"><i class="bi bi-eye"></i> Controller Layer (Class-Based Views)</div>
+                    <div class="layer-items">
+                        <div class="arch-box"><i class="bi bi-list-task"></i> ListView</div>
+                        <div class="arch-box"><i class="bi bi-plus-square"></i> CreateView</div>
+                        <div class="arch-box"><i class="bi bi-shield-lock"></i> Security Mixins</div>
+                    </div>
+                </div>
+
+                <div class="connector"><i class="bi bi-arrow-down"></i></div>
+
+                <div class="arch-layer" style="border-color: var(--primary); background: #f5f3ff;">
+                    <div class="layer-title"><i class="bi bi-cpu"></i> Business Logic Layer (Services)</div>
+                    <div class="layer-items">
+                        <div class="arch-box"><i class="bi bi-gear-wide-connected"></i> PayrollService</div>
+                        <div class="arch-box"><i class="bi bi-gear-wide-connected"></i> LeaveService</div>
+                        <div class="arch-box"><i class="bi bi-gear-wide-connected"></i> EmployeeService</div>
+                    </div>
+                </div>
+
+                <div class="connector"><i class="bi bi-arrow-down"></i></div>
+
+                <div class="arch-layer">
+                    <div class="layer-title"><i class="bi bi-database"></i> Data Access Layer (Models & Managers)</div>
+                    <div class="layer-items">
+                        <div class="arch-box"><i class="bi bi-server"></i> Custom QuerySets</div>
+                        <div class="arch-box"><i class="bi bi-funnel"></i> Custom Managers</div>
+                        <div class="arch-box"><i class="bi bi-clock-history"></i> TimeStampedModels</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Service Layer Detail Section -->
+        <section id="business-logic">
+            <div class="section-header">
+                <i class="bi bi-code-slash"></i>
+                <h3>The Service Layer Paradigm</h3>
+            </div>
+            <p>Django Views are strictly limited to handling HTTP requests and formatting responses. All data manipulation, validation rules, and specialized calculations live inside <strong>Service Classes</strong>. This ensures operations are atomic and insulated from presentation logic.</p>
+            
+            <div class="code-block">
+                <span class="comment"># Example: Payroll Processing located strictly in services.py</span><br><br>
+                <span class="keyword">class</span> <span class="method">PayrollService</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">@staticmethod</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">@transaction.atomic</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="method">create_payroll</span>(validated_data: <span class="keyword">dict</span>) -> Payroll:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 1. Enforce business rules (no duplicates)</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PayrollService._check_duplicate(employee.pk, month, year)<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 2. Automated Calculations via internal utilities</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payroll = Payroll(**validated_data)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payroll.gross_salary = calculate_gross_salary(payroll)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payroll.net_salary = calculate_net_salary(payroll)<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 3. Commit securely</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payroll.full_clean()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payroll.save()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> payroll
+            </div>
+        </section>
+
+        <!-- Security & Core Section -->
+        <section id="security">
+            <div class="section-header">
+                <i class="bi bi-shield-check"></i>
+                <h3>Security & Core Infrastructure</h3>
+            </div>
+            <p>The system uses a dedicated <code>core</code> application to house centralized utilities, enforcing strict security boundaries and preventing monolithic code buildup.</p>
+            
+            <div class="feature-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="feature-card">
+                    <h4 style="color: var(--primary-dark);"><i class="bi bi-shield-lock me-2"></i> Security Hardening</h4>
+                    <p>Configured against common web attacks. Includes forced HTTPOnly Session & CSRF cookies, strict X-Frame-Options (Clickjacking prevention), and MIME-type sniffing protections.</p>
+                </div>
+                <div class="feature-card">
+                    <h4 style="color: var(--primary-dark);"><i class="bi bi-hdd-network me-2"></i> Query Optimization</h4>
+                    <p>Heavy usage of Custom Managers overriding default QuerySets. Implements automated <code>select_related</code> and <code>prefetch_related</code> chaining to prevent N+1 query performance bottlenecks on scale.</p>
+                </div>
+                <div class="feature-card">
+                    <h4 style="color: var(--primary-dark);"><i class="bi bi-exclamation-triangle me-2"></i> Custom Domain Exceptions</h4>
+                    <p>Instead of generic database errors, the core routing utilizes granular error handling like <code>LeaveConflictError</code>, <code>InvalidPayrollStateError</code>, and <code>DuplicateEmployeeIDError</code>.</p>
+                </div>
+                <div class="feature-card">
+                    <h4 style="color: var(--primary-dark);"><i class="bi bi-puzzle me-2"></i> Reusable View Mixins</h4>
+                    <p>DRY implementation via <code>HRMSLoginMixin</code>, <code>HRMSCreateMixin</code>, and context injectors. Every view automatically processes success messages and ensures authorization.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-stack" style="text-align: center; padding-top: 2rem;">
+            <p style="font-size: 0.9rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Powered By</p>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <span style="background: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;"><i class="bi bi-filetype-py" style="color: #3b82f6;"></i> Python 3</span>
+                <span style="background: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #064e3b;"><i class="bi bi-server"></i> Django</span>
+                <span style="background: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;"><i class="bi bi-database" style="color: #64748b;"></i> SQLite</span>
+                <span style="background: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;"><i class="bi bi-filetype-html" style="color: #e34f26;"></i> HTML5 / CSS3</span>
+                <span style="background: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #8b5cf6;"><i class="bi bi-bootstrap-fill"></i> Bootstrap 5</span>
+                <span style="background: white; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;"><i class="bi bi-filetype-js" style="color: #eab308;"></i> jQuery</span>
+            </div>
+        </section>
+        
+    </main>
+</div>
+
+</body>
+</html>

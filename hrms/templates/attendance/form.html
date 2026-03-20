@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Attendance - HRMS{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if object %}Edit{% else %}Add{% endif %} Attendance</h1>
+        <p class="page-subtitle">{% if object %}Update existing record{% else %}Manually log an employee's attendance{% endif %}</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'attendance_manage_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card card-dash">
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.employee.id_for_label }}">Employee *</label>
+                        {{ form.employee }}
+                        {% if form.employee.errors %}<div class="text-danger small mt-1">{{ form.employee.errors.0 }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.date.id_for_label }}">Date *</label>
+                            {{ form.date }}
+                            {% if form.date.errors %}<div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.status.id_for_label }}">Status *</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}<div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.check_in.id_for_label }}">Check In Time</label>
+                            {{ form.check_in }}
+                            {% if form.check_in.errors %}<div class="text-danger small mt-1">{{ form.check_in.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="{{ form.check_out.id_for_label }}">Check Out Time</label>
+                            {{ form.check_out }}
+                            {% if form.check_out.errors %}<div class="text-danger small mt-1">{{ form.check_out.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ form.notes.id_for_label }}">Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}<div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary text-white">Save Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

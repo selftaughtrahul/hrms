@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Cancel Leave - HRMS{% endblock %}
+{% block content %}
+<div class="card card-dash" style="max-width:480px;margin:2rem auto;">
+    <div class="card-body text-center py-5">
+        <div class="delete-icon mb-3"><i class="bi bi-calendar-x-fill"></i></div>
+        <h4>Cancel Leave Request?</h4>
+        <p class="text-muted">This will cancel the leave request from {{ leave.start_date|date:"d M Y" }} to {{ leave.end_date|date:"d M Y" }}.</p>
+        <form method="POST">{% csrf_token %}
+            <a href="{% url 'leave_detail' leave.pk %}" class="btn btn-outline-secondary me-2">No, Keep</a>
+            <button type="submit" class="btn btn-warning"><i class="bi bi-x-circle me-1"></i>Yes, Cancel</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
