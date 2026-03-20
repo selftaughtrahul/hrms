@@ -52,7 +52,8 @@ class EmployeeRetrieveUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = EmployeeDetailSerializer
-    queryset = Employee.objects.all() # Used by DRF just for get_object() lookup
+    def get_queryset(self):
+        return Employee.objects.all()
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)

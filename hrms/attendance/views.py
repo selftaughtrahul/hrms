@@ -82,7 +82,8 @@ class AttendanceAdminListView(StaffRequiredMixin, ListView):
     """Admin view to see all employee attendances."""
     template_name = 'attendance/admin_list.html'
     context_object_name = 'attendances'
-    queryset = Attendance.objects.select_related('employee').all()
+    def get_queryset(self):
+        return Attendance.objects.select_related('employee').all()
     paginate_by = 20
 
 class AttendanceCreateView(StaffRequiredMixin, HRMSCreateMixin, CreateView):

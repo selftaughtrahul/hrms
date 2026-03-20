@@ -11,7 +11,8 @@ from .services import LeaveService
 class LeaveTypeListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LeaveTypeSerializer
-    queryset = LeaveType.objects.all()
+    def get_queryset(self):
+        return LeaveType.objects.all()
 
 
 class LeaveRequestListCreateAPIView(generics.ListCreateAPIView):
@@ -45,7 +46,8 @@ class LeaveRequestListCreateAPIView(generics.ListCreateAPIView):
 class LeaveRequestDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LeaveRequestSerializer
-    queryset = LeaveRequest.objects.all()
+    def get_queryset(self):
+        return LeaveRequest.objects.all()
 
 
 class LeaveReviewAPIView(generics.UpdateAPIView):
@@ -55,7 +57,8 @@ class LeaveReviewAPIView(generics.UpdateAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = LeaveRequestSerializer
-    queryset = LeaveRequest.objects.all()
+    def get_queryset(self):
+        return LeaveRequest.objects.all()
 
     def update(self, request, *args, **kwargs):
         action = request.data.get('action')

@@ -59,7 +59,8 @@ class PayrollDetailView(HRMSLoginMixin, DetailView):
     """Detailed view of a single payroll record."""
     template_name = 'payroll/detail.html'
     context_object_name = 'payroll'
-    queryset = Payroll.objects.select_related('employee', 'employee__department')
+    def get_queryset(self):
+        return Payroll.objects.select_related('employee', 'employee__department').all()
 
 
 class PayrollCreateView(HRMSLoginMixin, CreateView):
@@ -153,7 +154,8 @@ class PayslipView(HRMSLoginMixin, DetailView):
     """Printable payslip view for an employee's payroll record."""
     template_name = 'payroll/payslip.html'
     context_object_name = 'payroll'
-    queryset = Payroll.objects.select_related('employee', 'employee__department')
+    def get_queryset(self):
+        return Payroll.objects.select_related('employee', 'employee__department').all()
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

@@ -19,12 +19,17 @@ class EmployeeListSerializer(serializers.ModelSerializer):
 class EmployeeDetailSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer(read_only=True)
     department_id = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(), 
+        queryset=Department.objects.none(), # Placeholder, populated in __init__
         source='department', 
         write_only=True,
         required=False,
         allow_null=True
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure the queryset is scoped to the current tenant at runtime
+        self.fields['department_id'].queryset = Department.objects.all()
 
     class Meta:
         model = Employee

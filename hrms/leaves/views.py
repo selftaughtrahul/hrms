@@ -124,7 +124,8 @@ class LeaveTypeListView(HRMSLoginMixin, ListView):
     """List all configurable leave types."""
     template_name = 'leaves/leave_types.html'
     context_object_name = 'leave_types'
-    queryset = LeaveType.objects.all()
+    def get_queryset(self):
+        return LeaveType.objects.all()
 
 
 class LeaveTypeCreateView(HRMSLoginMixin, HRMSCreateMixin, CreateView):

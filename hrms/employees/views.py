@@ -101,7 +101,8 @@ class EmployeeUpdateView(HRMSLoginMixin, HRMSUpdateMixin, UpdateView):
     template_name = 'employees/form.html'
     form_class = EmployeeForm
     success_message = 'Employee updated successfully!'
-    queryset = Employee.objects.with_relations()
+    def get_queryset(self):
+        return Employee.objects.with_relations()
 
     def get_success_url(self):
         return reverse_lazy('employee_detail', kwargs={'pk': self.object.pk})
@@ -122,8 +123,49 @@ class EmployeeDeleteView(HRMSLoginMixin, HRMSDeleteMixin, DeleteView):
     model = Employee
     success_url = reverse_lazy('employee_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        emp = self.get_object()
+        counts = {
+            'attendance': emp.attendances.count(),
+            'leave': emp.leave_requests.count(),
+            'payroll': emp.payrolls.count(),
+        }
+        context.update(counts)
+        context['can_delete'] = sum(counts.values()) == 0
+        context['employee'] = emp
+        return context
+
     def get_success_message(self):
         return f'Employee {self.object.get_full_name()} deleted successfully.'
+
+    def delete(self, request, *args, **kwargs):
+        emp = self.get_object()
+        
+        # Import inside method to avoid circular imports if any
+        from attendance.models import Attendance
+        from leaves.models import LeaveRequest
+        from payroll.models import Payroll
+        
+        has_attendance = Attendance.unscoped.all().filter(employee_id=emp.pk).exists()
+        has_leaves = LeaveRequest.unscoped.all().filter(employee_id=emp.pk).exists()
+        has_payroll = Payroll.unscoped.all().filter(employee_id=emp.pk).exists()
+
+        if has_attendance or has_leaves or has_payroll:
+            messages.warning(
+                request, 
+                f"Cannot delete {emp.get_full_name()} because they have active records (Attendance, Leaves, or Payroll)."
+            )
+            return redirect('employee_list')
+            
+        try:
+            return super().delete(request, *args, **kwargs)
+        except __import__('django.db.models.deletion').db.models.deletion.ProtectedError:
+            messages.warning(
+                request, 
+                f"Cannot delete {emp.get_full_name()} because they are referenced by other records."
+            )
+            return redirect('employee_list')
 
 
 # ─── Department Views ─────────────────────────────────────────────────────────
@@ -169,4 +211,21 @@ class DepartmentDeleteView(HRMSLoginMixin, HRMSDeleteMixin, DeleteView):
     template_name = 'employees/dept_confirm_delete.html'
     model = Department
     success_url = reverse_lazy('department_list')
-    success_message = 'Department deleted.'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        department = self.get_object()
+        context.update({
+            'dept': department,
+            'member_count': department.employees.count()
+        })
+        return context
+
+    def delete(self, request, *args, **kwargs):
+        department = self.get_object()
+        if department.employees.exists():
+            messages.warning(
+                request, 
+                f'Cannot delete department "{department.name}" because it still has {department.employees.count()} employees assigned to it.'
+            )
+            return redirect('department_list')
+        return super().delete(request, *args, **kwargs)
