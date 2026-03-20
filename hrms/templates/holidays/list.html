@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Holiday Calendar - HRMS{% endblock %}
 {% block breadcrumb %}<span class="current-page"><i class="bi bi-calendar-heart-fill me-1"></i>Holidays</span>{% endblock %}
+{% block header_actions %}
+<a href="{% url 'holiday_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Holiday</a>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">

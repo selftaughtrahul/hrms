@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Departments - HRMS{% endblock %}
 {% block breadcrumb %}<span class="current-page"><i class="bi bi-diagram-3-fill me-1"></i>Departments</span>{% endblock %}
+{% block header_actions %}
+<a href="{% url 'department_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Department</a>
+{% endblock %}
 {% block content %}
 <div class="page-header">
     <div>
