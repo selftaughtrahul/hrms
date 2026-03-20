@@ -226,7 +226,7 @@ class CompanyConfig(TimeStampedModel):
         verbose_name_plural = 'Company Configurations'
 
     def __str__(self):
-        return f"Config for {self.tenant.name}"
+        return f"Config for {self.tenant.name if self.tenant else 'Unknown Tenant'}"
 
 
 class UserProfile(models.Model):

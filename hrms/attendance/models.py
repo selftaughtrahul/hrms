@@ -12,7 +12,7 @@ class Attendance(TenantAwareModel):
         ('holiday', 'Holiday'),
     )
 
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='attendances')
+    employee = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='attendances')
     date = models.DateField(default=timezone.now, db_index=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='present', db_index=True)
     

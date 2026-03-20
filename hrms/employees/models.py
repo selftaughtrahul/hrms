@@ -51,7 +51,7 @@ class Employee(TenantAwareModel):
         default='full_time', db_index=True
     )
     department = models.ForeignKey(
-        Department, on_delete=models.SET_NULL,
+        Department, on_delete=models.PROTECT,
         null=True, blank=True, related_name='employees'
     )
     designation = models.CharField(max_length=100, blank=True)

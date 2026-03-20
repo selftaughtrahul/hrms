@@ -19,7 +19,7 @@ class Payroll(TenantAwareModel):
     ]
 
     employee = models.ForeignKey(
-        'employees.Employee', on_delete=models.CASCADE,
+        'employees.Employee', on_delete=models.PROTECT,
         related_name='payrolls', db_index=True
     )
     month = models.IntegerField(choices=MONTH_CHOICES, db_index=True)

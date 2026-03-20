@@ -29,7 +29,7 @@ class LeaveRequest(TenantAwareModel):
     ]
 
     employee = models.ForeignKey(
-        'employees.Employee', on_delete=models.CASCADE,
+        'employees.Employee', on_delete=models.PROTECT,
         related_name='leave_requests', db_index=True
     )
     leave_type = models.ForeignKey(
