@@ -211,8 +211,8 @@ a:hover { color: var(--primary-dark); }
 /* ======================== ACTION BUTTONS ======================== */
 .action-btns { display: flex; gap: 4px; }
 .btn-action {
-  width: 30px; height: 30px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
-  background: #f1f5f9; color: var(--text-muted); font-size: 13px; transition: 0.2s;
+  width: 26px; height: 26px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
+  background: #f1f5f9; color: var(--text-muted); font-size: 12px; transition: 0.2s;
 }
 .btn-action:hover { background: #e2e8f0; color: var(--text); }
 .btn-action-edit:hover { background: #ede9fe; color: var(--primary); }
@@ -441,8 +441,8 @@ a:hover { color: var(--primary-dark); }
 
 
 /* ======================== BUTTONS ======================== */
-.btn { padding: 6px 14px; font-size: 14px; transition: 0.2s; border-radius: 8px; }
-.btn-sm { padding: 4px 10px; font-size: 13px; }
+.btn { padding: 4px 12px; font-size: 13.5px; transition: 0.2s; border-radius: 6px; }
+.btn-sm { padding: 2px 8px; font-size: 12.5px; }
 .btn-primary { background: var(--primary); border-color: var(--primary); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); }
 .btn-outline-primary { color: var(--primary); border-color: var(--primary); font-weight: 500; }
