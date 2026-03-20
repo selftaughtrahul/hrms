@@ -40,9 +40,13 @@ class EmployeeForm(forms.ModelForm):
             'basic_salary': forms.NumberInput(attrs={'class': 'form-control'}),
             'hourly_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'annual_leave_quota': forms.NumberInput(attrs={'class': 'form-control'}),
-            'annual_leave_quota': forms.NumberInput(attrs={'class': 'form-control'}),
             'sick_leave_quota': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter department dropdown by tenant
+        self.fields['department'].queryset = Department.objects.all()
 
     def clean_employee_id(self):
         emp_id = self.cleaned_data.get('employee_id')

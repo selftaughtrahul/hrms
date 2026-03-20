@@ -15,6 +15,8 @@ class AttendanceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Filter employee dropdown by tenant
+        self.fields['employee'].queryset = Employee.objects.all()
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
         self.fields['status'].widget.attrs['class'] = 'form-select'

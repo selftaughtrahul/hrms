@@ -20,6 +20,12 @@ class LeaveRequestForm(forms.ModelForm):
             'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter dropdowns by tenant
+        self.fields['employee'].queryset = Employee.objects.all()
+        self.fields['leave_type'].queryset = LeaveType.objects.all()
+
 
 class LeaveReviewForm(forms.Form):
     STATUS_CHOICES = [

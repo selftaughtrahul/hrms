@@ -6,6 +6,9 @@ from employees.models import Employee
 class PayrollForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Filter employee dropdown by tenant
+        self.fields['employee'].queryset = Employee.objects.all()
+        
         import datetime
         current_year = datetime.date.today().year
         year_choices = [(y, y) for y in range(current_year, 2019, -1)]
