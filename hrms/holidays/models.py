@@ -1,12 +1,12 @@
 """
-holidays/models.py — Refactored to use TimeStampedModel and HolidayManager
+holidays/models.py — Multi-tenant aware Holiday model
 """
 from django.db import models
-from core.models import TimeStampedModel
+from core.models import TenantAwareModel
 from .managers import HolidayManager
 
 
-class Holiday(TimeStampedModel):
+class Holiday(TenantAwareModel):
     HOLIDAY_TYPE_CHOICES = [
         ('national', 'National Holiday'),
         ('regional', 'Regional Holiday'),
@@ -15,7 +15,7 @@ class Holiday(TimeStampedModel):
     ]
 
     name = models.CharField(max_length=200)
-    date = models.DateField(db_index=True, unique=True)
+    date = models.DateField(db_index=True)
     holiday_type = models.CharField(
         max_length=20, choices=HOLIDAY_TYPE_CHOICES,
         default='national', db_index=True
@@ -35,6 +35,7 @@ class Holiday(TimeStampedModel):
         indexes = [
             models.Index(fields=['year', 'holiday_type']),
         ]
+        unique_together = ['tenant', 'date']
 
     def __str__(self):
         return f"{self.name} ({self.date})"

@@ -50,5 +50,6 @@ venv.bak/
 *.swo
 
 # Agents
-.agents/
-.gemini/
+# We keep these to track workflows and project brain context
+#!.agents/
+#!.gemini/

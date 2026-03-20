@@ -1,9 +1,9 @@
 from django.db import models
-from core.models import TimeStampedModel
+from core.models import TenantAwareModel
 from employees.models import Employee
 from django.utils import timezone
 
-class Attendance(TimeStampedModel):
+class Attendance(TenantAwareModel):
     STATUS_CHOICES = (
         ('present', 'Present'),
         ('absent', 'Absent'),
@@ -21,8 +21,8 @@ class Attendance(TimeStampedModel):
     notes = models.TextField(blank=True, default='')
 
     class Meta:
-        # Enforce exactly one attendance record per employee per day
-        unique_together = ['employee', 'date']
+        # Enforce exactly one attendance record per employee per day, per tenant
+        unique_together = ['tenant', 'employee', 'date']
         ordering = ['-date']
 
     def __str__(self):

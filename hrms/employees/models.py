@@ -1,23 +1,24 @@
 """
-employees/models.py — Refactored to use TimeStampedModel and EmployeeManager
+employees/models.py — Multi-tenant aware Employee and Department models
 """
 from django.db import models
-from core.models import TimeStampedModel
+from core.models import TenantAwareModel
 from .managers import EmployeeManager
 
 
-class Department(TimeStampedModel):
-    name = models.CharField(max_length=100, unique=True, db_index=True)
+class Department(TenantAwareModel):
+    name = models.CharField(max_length=100, db_index=True)
     description = models.TextField(blank=True)
 
     class Meta:
         ordering = ['name']
+        unique_together = ['tenant', 'name']
 
     def __str__(self):
         return self.name
 
 
-class Employee(TimeStampedModel):
+class Employee(TenantAwareModel):
     EMPLOYEE_TYPE_CHOICES = [
         ('full_time', 'Full Time'),
         ('part_time', 'Part Time'),
@@ -35,10 +36,10 @@ class Employee(TimeStampedModel):
     ]
 
     # Identity
-    employee_id = models.CharField(max_length=20, unique=True, db_index=True)
+    employee_id = models.CharField(max_length=20, db_index=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True, db_index=True)
+    email = models.EmailField(db_index=True)
     phone = models.CharField(max_length=15, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='male')
     date_of_birth = models.DateField(null=True, blank=True)
@@ -85,6 +86,10 @@ class Employee(TimeStampedModel):
         indexes = [
             models.Index(fields=['employee_type', 'status']),
             models.Index(fields=['department', 'status']),
+        ]
+        unique_together = [
+            ('tenant', 'employee_id'),
+            ('tenant', 'email'),
         ]
 
     def __str__(self):

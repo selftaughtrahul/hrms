@@ -1,12 +1,12 @@
 """
-payroll/models.py — Refactored to use TimeStampedModel and PayrollManager
+payroll/models.py — Multi-tenant aware Payroll model
 """
 from django.db import models
-from core.models import TimeStampedModel
+from core.models import TenantAwareModel
 from .managers import PayrollManager
 
 
-class Payroll(TimeStampedModel):
+class Payroll(TenantAwareModel):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
         ('processed', 'Processed'),

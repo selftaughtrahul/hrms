@@ -1,23 +1,38 @@
 from django.contrib import admin
-from .models import ActivityLog, CompanyConfig
+from .models import ActivityLog, CompanyConfig, Tenant, UserProfile
+
+
+@admin.register(Tenant)
+class TenantAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'owner_email', 'plan', 'is_active', 'created_at']
+    list_filter = ['plan', 'is_active']
+    search_fields = ['name', 'slug', 'owner_email']
+    readonly_fields = ['id', 'created_at', 'updated_at']
+    prepopulated_fields = {'slug': ('name',)}
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'tenant', 'role', 'created_at']
+    list_filter = ['role', 'tenant']
+    search_fields = ['user__username', 'user__email', 'tenant__name']
+    raw_id_fields = ['user']
+
 
 @admin.register(ActivityLog)
 class ActivityLogAdmin(admin.ModelAdmin):
-    list_display = ['user', 'action', 'created_at']
-    list_filter = ['action']
-    search_fields = ['user__username', 'description']
+    list_display = ['user', 'tenant', 'action', 'created_at']
+    list_filter = ['action', 'tenant']
+    search_fields = ['user__username', 'description', 'tenant__name']
     readonly_fields = ['created_at', 'updated_at']
+
 
 @admin.register(CompanyConfig)
 class CompanyConfigAdmin(admin.ModelAdmin):
-    list_display = ('company_name',)
+    list_display = ['company_name', 'tenant', 'plan_display', 'primary_color']
+    search_fields = ['company_name', 'tenant__name']
+    readonly_fields = ['tenant']
 
-    def has_add_permission(self, request):
-        """Prevent adding multiple rows, force singleton."""
-        if self.model.objects.count() >= 1:
-            return False
-        return super().has_add_permission(request)
-
-    def has_delete_permission(self, request, obj=None):
-        """Prevent deletion to enforce singleton."""
-        return False
+    def plan_display(self, obj):
+        return obj.tenant.get_plan_display()
+    plan_display.short_description = 'Plan'

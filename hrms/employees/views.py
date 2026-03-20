@@ -9,8 +9,9 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 
+from django.http import Http404
 from core.mixins import HRMSLoginMixin, HRMSCreateMixin, HRMSUpdateMixin, HRMSDeleteMixin
-from core.exceptions import DuplicateEmployeeIDError
+from core.exceptions import DuplicateEmployeeIDError, EmployeeNotFoundError
 
 from .models import Employee, Department
 from .forms import EmployeeForm, DepartmentForm
@@ -55,7 +56,10 @@ class EmployeeDetailView(HRMSLoginMixin, DetailView):
     context_object_name = 'employee'
 
     def get_object(self, queryset=None):
-        return EmployeeService.get_employee(pk=self.kwargs['pk'])
+        try:
+            return EmployeeService.get_employee(pk=self.kwargs['pk'])
+        except EmployeeNotFoundError:
+            raise Http404("Employee not found or access denied.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

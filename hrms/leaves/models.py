@@ -1,25 +1,26 @@
 """
-leaves/models.py — Refactored to use TimeStampedModel and LeaveManager
+leaves/models.py — Multi-tenant aware Leave models
 """
 from django.db import models
-from core.models import TimeStampedModel
+from core.models import TenantAwareModel
 from .managers import LeaveManager
 
 
-class LeaveType(TimeStampedModel):
-    name = models.CharField(max_length=100, unique=True)
+class LeaveType(TenantAwareModel):
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     max_days_per_year = models.IntegerField(default=10)
     is_paid = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['name']
+        unique_together = ['tenant', 'name']
 
     def __str__(self):
         return self.name
 
 
-class LeaveRequest(TimeStampedModel):
+class LeaveRequest(TenantAwareModel):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),

@@ -4,6 +4,7 @@ Custom QuerySet and Manager for Payroll model.
 """
 from django.db import models
 from datetime import date
+from core.models import TenantManager
 
 
 class PayrollQuerySet(models.QuerySet):
@@ -43,9 +44,13 @@ class PayrollQuerySet(models.QuerySet):
         return self.aggregate(total=Sum('gross_salary'))['total'] or 0
 
 
-class PayrollManager(models.Manager):
+class PayrollManager(TenantManager):
+    """Inherits global tenant filtering from TenantManager."""
+
     def get_queryset(self):
-        return PayrollQuerySet(self.model, using=self._db)
+        return PayrollQuerySet(self.model, using=self._db).filter(
+            pk__in=super().get_queryset().values('pk')
+        )
 
     def for_period(self, month, year):
         return self.get_queryset().for_period(month, year).with_employee()

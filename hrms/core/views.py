@@ -12,10 +12,16 @@ from .models import ActivityLog, CompanyConfig
 from .mixins import StaffRequiredMixin, HRMSUpdateMixin
 from .forms import CompanyConfigForm
 
+
 class ActivityListAPIView(LoginRequiredMixin, View):
     """Returns the 10 most recent unread activities for the bell icon dropdown."""
     def get(self, request, *args, **kwargs):
-        activities = ActivityLog.objects.filter(is_read=False).select_related('user')[:10]
+        qs = ActivityLog.objects.filter(is_read=False).select_related('user')
+        # Scope to the current tenant if one is set
+        tenant = getattr(request, 'tenant', None)
+        if tenant is not None:
+            qs = qs.filter(tenant=tenant)
+        activities = qs[:10]
         data = []
         for act in activities:
             data.append({
@@ -25,14 +31,20 @@ class ActivityListAPIView(LoginRequiredMixin, View):
                 'description': act.description,
                 'timesince': f"{timesince(act.created_at)} ago"
             })
-        return JsonResponse({'unread_count': ActivityLog.objects.filter(is_read=False).count(), 'activities': data})
+        unread_count = ActivityLog.objects.filter(is_read=False, **({'tenant': tenant} if tenant else {})).count()
+        return JsonResponse({'unread_count': unread_count, 'activities': data})
 
 
 class ActivityMarkReadAPIView(LoginRequiredMixin, View):
     """Marks all current unread activities as read."""
     def post(self, request, *args, **kwargs):
-        ActivityLog.objects.filter(is_read=False).update(is_read=True)
+        tenant = getattr(request, 'tenant', None)
+        qs = ActivityLog.objects.filter(is_read=False)
+        if tenant is not None:
+            qs = qs.filter(tenant=tenant)
+        qs.update(is_read=True)
         return JsonResponse({'status': 'success'})
+
 
 class CompanyConfigUpdateView(StaffRequiredMixin, HRMSUpdateMixin, UpdateView):
     """
@@ -45,7 +57,12 @@ class CompanyConfigUpdateView(StaffRequiredMixin, HRMSUpdateMixin, UpdateView):
     success_message = "Global settings updated successfully! Changes applied immediately."
 
     def get_object(self, queryset=None):
-        return CompanyConfig.load()
+        tenant = getattr(self.request, 'tenant', None)
+        if tenant:
+            return CompanyConfig.load_for_tenant(tenant)
+        # Fallback: get any config (superuser / dev mode)
+        obj, _ = CompanyConfig.objects.get_or_create(id=1)
+        return obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

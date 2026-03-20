@@ -3,6 +3,7 @@ leaves/managers.py
 Custom QuerySet and Manager for LeaveRequest model.
 """
 from django.db import models
+from core.models import TenantManager
 
 
 class LeaveQuerySet(models.QuerySet):
@@ -44,9 +45,13 @@ class LeaveQuerySet(models.QuerySet):
         return self.order_by('-applied_on')
 
 
-class LeaveManager(models.Manager):
+class LeaveManager(TenantManager):
+    """Inherits global tenant filtering from TenantManager."""
+
     def get_queryset(self):
-        return LeaveQuerySet(self.model, using=self._db)
+        return LeaveQuerySet(self.model, using=self._db).filter(
+            pk__in=super().get_queryset().values('pk')
+        )
 
     def pending(self):
         return self.get_queryset().pending()

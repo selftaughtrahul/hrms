@@ -4,6 +4,7 @@ Custom QuerySet and Manager for the Employee model.
 Centralises all employee query logic with built-in optimisation.
 """
 from django.db import models
+from core.models import TenantManager
 
 
 class EmployeeQuerySet(models.QuerySet):
@@ -75,14 +76,18 @@ class EmployeeQuerySet(models.QuerySet):
         return {row['employee_type']: row['total'] for row in counts}
 
 
-class EmployeeManager(models.Manager):
+class EmployeeManager(TenantManager):
     """
-    Default manager for Employee that returns EmployeeQuerySet.
-    Ensures all custom methods are available via Employee.objects.*
+    Manager for Employee. Inherits global tenant filtering from TenantManager.
+    Provides chainable helpers via EmployeeQuerySet.
     """
 
     def get_queryset(self):
-        return EmployeeQuerySet(self.model, using=self._db)
+        tenant_qs = super().get_queryset()  # applies tenant filter from TenantManager
+        # Wrap in EmployeeQuerySet to expose chained helper methods
+        return EmployeeQuerySet(self.model, using=self._db).filter(
+            pk__in=tenant_qs.values('pk')
+        )
 
     # ─── Convenience proxy methods ─────────────────────────────────────────
     def active(self):

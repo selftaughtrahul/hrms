@@ -4,6 +4,7 @@ Custom QuerySet and Manager for Holiday model.
 """
 from django.db import models
 from datetime import date
+from core.models import TenantManager
 
 
 class HolidayQuerySet(models.QuerySet):
@@ -32,9 +33,13 @@ class HolidayQuerySet(models.QuerySet):
         return self.filter(holiday_type='company')
 
 
-class HolidayManager(models.Manager):
+class HolidayManager(TenantManager):
+    """Inherits global tenant filtering from TenantManager."""
+
     def get_queryset(self):
-        return HolidayQuerySet(self.model, using=self._db)
+        return HolidayQuerySet(self.model, using=self._db).filter(
+            pk__in=super().get_queryset().values('pk')
+        )
 
     def for_year(self, year=None):
         return self.get_queryset().for_year(year)
