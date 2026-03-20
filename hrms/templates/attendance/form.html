@@ -3,8 +3,6 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">{% if object %}Edit{% else %}Add{% endif %} Attendance</h1>
-        <p class="page-subtitle">{% if object %}Update existing record{% else %}Manually log an employee's attendance{% endif %}</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'attendance_manage_list' %}" class="btn btn-secondary">Cancel</a>
